@@ -10,54 +10,57 @@
     <base href="/" />
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a asp-controller="Home" asp-action="Index" class="navbar-brand">newoidc</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
-                </ul>
-                @await Html.PartialAsync("_LoginPartial")
-            </div>
-        </div>
-    </div>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2016 - newoidc</p>
-        </footer>
-    </div>
+    <!--
+        <div class="navbar navbar-inverse navbar-fixed-top">
+          <div class="container">
+              <div class="navbar-header">
+                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                  </button>
+                  <a asp-controller="Home" asp-action="Index" class="navbar-brand">newoidc</a>
+              </div>
+              <div class="navbar-collapse collapse">
+                  <ul class="nav navbar-nav">
+                      <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                      <li><a asp-controller="Home" asp-action="About">About</a></li>
+                      <li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
+                  </ul>
+                  @@await Html.PartialAsync("_LoginPartial")
+              </div>
+          </div>
+      </div>
+        -->
 
-  
-    <my-app>Loading...</my-app>
-    <script src="libs/es6-shim/es6-shim.js"></script>
-    <script src="libs/zone.js/dist/zone.js"></script>
-    <script src="libs/reflect-metadata/Reflect.js"></script>
-    <script src="libs/systemjs/dist/system.src.js"></script>
-
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+ 
+      <div class="container body-content">
+          @RenderBody()
+          <my-app>Loading...</my-app>
+          <hr />
+          <footer>
+              <p>&copy; 2016 - newoidc</p>
+          </footer>
+      </div>
 
 
+      <script src="libs/es6-shim/es6-shim.js"></script>
+      <script src="libs/zone.js/dist/zone.js"></script>
+      <script src="libs/reflect-metadata/Reflect.js"></script>
+      <script src="libs/systemjs/dist/system.src.js"></script>
+
+      <script src="~/lib/jquery/dist/jquery.js"></script>
+      <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 
 
-    <!--configures SystemJS-->
+
+      <!--configures SystemJS-->
     <script src="system.config.js"></script>
     <script>
-        System.import('app').catch(function(err){ console.error(err); });
+        System.import('app').catch(function (err) { console.error(err); });
     </script>
-   
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

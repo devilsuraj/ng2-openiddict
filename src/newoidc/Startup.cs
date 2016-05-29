@@ -122,13 +122,13 @@ namespace newoidc
                             .UnsafeInline());
                 });
             });
-         /*       app.UseCookieAuthentication(new CookieAuthenticationOptions
+               app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
                 LoginPath = new PathString("/signin")
                
-            });*/
+            });
             app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
             {   ClientId = "myClient",
                 ClientSecret = "secret_secret_secret",
