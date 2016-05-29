@@ -11,6 +11,10 @@ using Microsoft.Extensions.Logging;
 using newoidc.Models;
 using newoidc.Models.AccountViewModels;
 using newoidc.Services;
+using newoidc.Data;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace newoidc.Controllers
 {
@@ -22,22 +26,44 @@ namespace newoidc.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
-
+        private readonly ApplicationDbContext _applicationDbContext;
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ISmsSender smsSender,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+             ApplicationDbContext applicationDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
-            _smsSender = smsSender;
+            _smsSender = smsSender; _applicationDbContext = applicationDbContext;
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
 
         //
+        [HttpGet("~/signin")]
+        public ActionResult SignIn()
+        {
+            // Instruct the OIDC client middleware to redirect the user agent to the identity provider.
+            // Note: the authenticationType parameter must match the value configured in Startup.cs
+            return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
+            {
+                RedirectUri = "/"
+            });
+        }
+
+        [HttpGet("~/signout"), HttpPost("~/signout")]
+        public async Task SignOut()
+        {
+            // Instruct the cookies middleware to delete the local cookie created when the user agent
+            // is redirected from the identity provider after a successful authorization flow.
+            await HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Instruct the OpenID Connect middleware to redirect the user agent to the identity provider to sign out.
+            await HttpContext.Authentication.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+        }
         // GET: /Account/Login
         [HttpGet]
         [AllowAnonymous]

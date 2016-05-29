@@ -1,45 +1,40 @@
-﻿/// <binding Clean='clean' />
-"use strict";
-
-var gulp = require("gulp"),
-    rimraf = require("rimraf"),
-    concat = require("gulp-concat"),
-    cssmin = require("gulp-cssmin"),
-    uglify = require("gulp-uglify");
-
-var webroot = "./wwwroot/";
+﻿
+var gulp = require('gulp');
+var del = require('del');
 
 var paths = {
-    js: webroot + "js/**/*.js",
-    minJs: webroot + "js/**/*.min.js",
-    css: webroot + "css/**/*.css",
-    minCss: webroot + "css/**/*.min.css",
-    concatJsDest: webroot + "js/site.min.js",
-    concatCssDest: webroot + "css/site.min.css"
+    npmSrc: "./node_modules/",
+    libTarget: "./wwwroot/libs/"
 };
 
-gulp.task("clean:js", function (cb) {
-    rimraf(paths.concatJsDest, cb);
+var packagesToMove = [
+   paths.npmSrc + '/systemjs/dist/system-polyfills.js',
+   paths.npmSrc + '/systemjs/dist/system.src.js',
+   paths.npmSrc + '/zone.js/dist/*.js',
+   paths.npmSrc + '/es6-shim/es6-shim.js',
+   paths.npmSrc + '/reflect-metadata/*.js',
+   paths.npmSrc + '/rxjs/**/*.js',
+   paths.npmSrc + '/@angular/**/*.js',
+   paths.npmSrc + '/jquery/dist/jquery.min.js',
+   paths.npmSrc + '/angular2localization/bundles/*.js',
+    paths.npmSrc + '/angular2-jwt/angular2-jwt.js'
+];
+
+gulp.task('clean', function () {
+    return del(paths.libTarget);
 });
 
-gulp.task("clean:css", function (cb) {
-    rimraf(paths.concatCssDest, cb);
+gulp.task('copyNpmTo_wwwrootLibs', ['clean'], function () {
+    gulp.src(packagesToMove[0]).pipe(gulp.dest(paths.libTarget + 'systemjs/dist'));
+    gulp.src(packagesToMove[1]).pipe(gulp.dest(paths.libTarget + 'systemjs/dist'));
+    gulp.src(packagesToMove[2]).pipe(gulp.dest(paths.libTarget + 'zone.js/dist'));
+    gulp.src(packagesToMove[3]).pipe(gulp.dest(paths.libTarget + 'es6-shim'));
+    gulp.src(packagesToMove[4]).pipe(gulp.dest(paths.libTarget + 'reflect-metadata'));
+    gulp.src(packagesToMove[5]).pipe(gulp.dest(paths.libTarget + 'rxjs'));
+    gulp.src(packagesToMove[6]).pipe(gulp.dest(paths.libTarget + '@angular'));
+    gulp.src(packagesToMove[7]).pipe(gulp.dest(paths.libTarget));
+    gulp.src(packagesToMove[8]).pipe(gulp.dest(paths.libTarget + 'angular2localization/bundles'));
+    gulp.src(packagesToMove[9]).pipe(gulp.dest(paths.libTarget + 'angular2-jwt'));
 });
 
-gulp.task("clean", ["clean:js", "clean:css"]);
-
-gulp.task("min:js", function () {
-    return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
-        .pipe(concat(paths.concatJsDest))
-        .pipe(uglify())
-        .pipe(gulp.dest("."));
-});
-
-gulp.task("min:css", function () {
-    return gulp.src([paths.css, "!" + paths.minCss])
-        .pipe(concat(paths.concatCssDest))
-        .pipe(cssmin())
-        .pipe(gulp.dest("."));
-});
-
-gulp.task("min", ["min:js", "min:css"]);
++gulp.task('default', ['copyNpmTo_wwwrootLibs']);
