@@ -15,6 +15,7 @@ using newoidc.Data;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Newtonsoft.Json;
 
 namespace newoidc.Controllers
 {
@@ -133,6 +134,16 @@ namespace newoidc.Controllers
             var result = await _userManager.CreateAsync(user, dto.Password);
             return result;
         }
+        [Route("api/account/externalAccess")]
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult ExtLogin(string provider)
+        {
+            var returnUrl = "http://www.google.com";
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
         /*
         [HttpPost]
         [AllowAnonymous]
@@ -186,7 +197,7 @@ namespace newoidc.Controllers
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
         }
-
+        
         //
         // GET: /Account/ExternalLoginCallback
         [HttpGet]

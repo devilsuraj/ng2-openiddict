@@ -30,13 +30,17 @@ export class authorizeComponent{
     public logMsg: string;
     public model: logModel;
     public rmodel: registerModel;
+    public pros: extprovider;
     public login: boolean;
     public register: boolean;
     public loss: boolean;
+    public externals: string;
     public hodeModel: boolean = false;
     ngOnInit() {
+       // this.getexternals();
         this.model = new logModel();
         this.rmodel = new registerModel();
+        this.pros = new extprovider();
         this.logMsg = "Type your credentials.";
         this.login = true;
         this.loss = false;
@@ -84,6 +88,25 @@ export class authorizeComponent{
             )
         })
     }
+
+
+    public extLogin(provider:string) {
+        this.isLoggedin = false;
+        this.pros.provider = "Google";
+        this.pros.returnUrl = "http://google.com";
+        var headers = new Headers();
+        var creds = provider;
+        headers.append('Content-Type', 'application/X-www-form-urlencoded');
+        return new Promise((resolve) => {
+            this._http.post("http://localhost:58056/account/externallogin",JSON.stringify( this.pros), {headers:headers}).subscribe(response => {
+                alert(response.headers.keys());
+            }, error => {
+                alert(error.headers.keys());
+            }
+            )
+        })
+    }
+
     public getapi() {
         this.isLoggedin = false;
         var headers = new Headers();
@@ -93,6 +116,22 @@ export class authorizeComponent{
         return new Promise((resolve) => {
             this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe((data) => {
                 alert(JSON.stringify(data.json()));
+                // resolve(this.isLoggedin)
+            }
+            )
+        })
+    }
+
+
+    public getexternals() {
+        this.isLoggedin = false;
+        var headers = new Headers();
+        //  var creds = "grant_type=password"
+        //      + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + "d@d.d" + '&password=' + "Polardevil#1";
+       // headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
+        return new Promise((resolve) => {
+            this._http.get('http://localhost:58056/api/Account/externalAccess?returnUrl=%2F&generateState=true').subscribe((data) => {
+             this.externals=JSON.stringify(data.json());
                 // resolve(this.isLoggedin)
             }
             )
@@ -157,6 +196,11 @@ export class authorizeComponent{
 export class logModel {
     public username: string;
     public password: string;
+}
+
+export class extprovider {
+    public provider: string;
+    public returnUrl: string;
 }
 
 export class registerModel {

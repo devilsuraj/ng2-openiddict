@@ -11,7 +11,7 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var core_1, http_1, angular2_jwt_1, router_deprecated_1, ng2_bs3_modal_1;
-    var authorizeComponent, logModel, registerModel;
+    var authorizeComponent, logModel, extprovider, registerModel;
     return {
         setters:[
             function (core_1_1) {
@@ -48,6 +48,7 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 authorizeComponent.prototype.ngOnInit = function () {
                     this.model = new logModel();
                     this.rmodel = new registerModel();
+                    this.pros = new extprovider();
                     this.logMsg = "Type your credentials.";
                     this.login = true;
                     this.loss = false;
@@ -93,6 +94,22 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                         }, function (error) { return _this.logMsg = error.json().error_description; });
                     });
                 };
+                authorizeComponent.prototype.extLogin = function (provider) {
+                    var _this = this;
+                    this.isLoggedin = false;
+                    this.pros.provider = "Google";
+                    this.pros.returnUrl = "http://google.com";
+                    var headers = new http_1.Headers();
+                    var creds = provider;
+                    headers.append('Content-Type', 'application/X-www-form-urlencoded');
+                    return new Promise(function (resolve) {
+                        _this._http.post("http://localhost:58056/account/externallogin", JSON.stringify(_this.pros), { headers: headers }).subscribe(function (response) {
+                            alert(response.headers.keys());
+                        }, function (error) {
+                            alert(error.headers.keys());
+                        });
+                    });
+                };
                 authorizeComponent.prototype.getapi = function () {
                     var _this = this;
                     this.isLoggedin = false;
@@ -101,6 +118,16 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     return new Promise(function (resolve) {
                         _this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe(function (data) {
                             alert(JSON.stringify(data.json()));
+                        });
+                    });
+                };
+                authorizeComponent.prototype.getexternals = function () {
+                    var _this = this;
+                    this.isLoggedin = false;
+                    var headers = new http_1.Headers();
+                    return new Promise(function (resolve) {
+                        _this._http.get('http://localhost:58056/api/Account/externalAccess?returnUrl=%2F&generateState=true').subscribe(function (data) {
+                            _this.externals = JSON.stringify(data.json());
                         });
                     });
                 };
@@ -116,15 +143,12 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     return new Promise(function (resolve) {
                         _this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe(function (data) {
                             if (data.json().Succeeded) {
-                                alert('calling login');
                                 var headerss = new http_1.Headers();
                                 var credss = "grant_type=password"
                                     + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + _this.rmodel.Email + '&password=' + _this.rmodel.Password;
                                 headerss.append('Content-Type', 'application/X-www-form-urlencoded');
                                 return new Promise(function (resolve) {
                                     _this._http.post('http://localhost:58056/connect/token', credss, { headers: headerss }).subscribe(function (data2) {
-                                        alert('calling done');
-                                        alert(data2.json().access_token);
                                         if (data2.json().access_token) {
                                             _this.token = data2.json().access_token;
                                             _this.logMsg = "You are logged In Now , Please Wait ....";
@@ -169,6 +193,12 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 return logModel;
             }());
             exports_1("logModel", logModel);
+            extprovider = (function () {
+                function extprovider() {
+                }
+                return extprovider;
+            }());
+            exports_1("extprovider", extprovider);
             registerModel = (function () {
                 function registerModel() {
                 }
