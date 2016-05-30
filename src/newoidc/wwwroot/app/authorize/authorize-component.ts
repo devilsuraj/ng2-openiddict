@@ -114,21 +114,42 @@ export class authorizeComponent{
         headers.append('Content-Type', 'application/json');
         return new Promise((resolve) => {
             this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe((data) => {
-                if (data.json().access_token) {
-                    this.token = data.json().access_token
-                    this.logMsg = "You are logged In Now , Please Wait ....";
-                    localStorage.setItem("authorizationData", data.json().access_token);
-                    localStorage.setItem("auth_key", data.json().access_token);
-                    this.isLoggedin = true;
-                    this.mclose();
-                    // dialog.dismiss();
-                    this._parentRouter.parent.navigate(['/Dashboard']);
+                if (data.json().Succeeded) {
+                    //get new token
+                   // alert('calling login');
+                    var headerss = new Headers();
+                    var credss = "grant_type=password"
+                        + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + this.rmodel.Email + '&password=' + this.rmodel.Password;
+                    headerss.append('Content-Type', 'application/X-www-form-urlencoded');
+                    return new Promise((resolve) => {
+                        this._http.post('http://localhost:58056/connect/token', credss, { headers: headerss }).subscribe((data2) => {
+                           // alert('calling done');
+                          //  alert(data2.json().access_token);
+                            if (data2.json().access_token) {
+                                this.token = data2.json().access_token
+                                this.logMsg = "You are logged In Now , Please Wait ....";
+                                localStorage.setItem("authorizationData", data2.json().access_token);
+                                localStorage.setItem("auth_key", data2.json().access_token);
+                                this.isLoggedin = true;
+                                this.mclose();
+                                // dialog.dismiss();
+                                this._parentRouter.parent.navigate(['/Dashboard']);
+                            }
+                            else {
+                                this.logMsg = "Invalid username or password";
+                            }
+                            resolve(this.isLoggedin)
+                        }, error => this.logMsg = error.json().error_description
+                        )
+                    })
+                    //end of token
                 }
                 else {
-                    this.logMsg = "Invalid username or password";
+                   // this.logMsg = "Invalid username or password";
+                    this.logMsg = data.json().Errors[0].Description
                 }
                 resolve(this.isLoggedin)
-            }, error => this.logMsg = error.json().error_description
+            }, error => this.logMsg = error.json().Errors[0].Description
             )
         })
     }

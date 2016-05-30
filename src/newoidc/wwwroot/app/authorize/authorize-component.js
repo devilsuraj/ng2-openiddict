@@ -110,26 +110,42 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 authorizeComponent.prototype.userRegister = function () {
                     var _this = this;
                     this.isLoggedin = false;
-                    this.rmodel.returnUrl = "http://localhost:58056/connect/token";
                     var headers = new http_1.Headers();
                     var creds = JSON.stringify(this.rmodel);
                     headers.append('Content-Type', 'application/json');
                     return new Promise(function (resolve) {
                         _this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe(function (data) {
-                            if (data.json().access_token) {
-                                _this.token = data.json().access_token;
-                                _this.logMsg = "You are logged In Now , Please Wait ....";
-                                localStorage.setItem("authorizationData", data.json().access_token);
-                                localStorage.setItem("auth_key", data.json().access_token);
-                                _this.isLoggedin = true;
-                                _this.mclose();
-                                _this._parentRouter.parent.navigate(['/Dashboard']);
+                            if (data.json().Succeeded) {
+                                alert('calling login');
+                                var headerss = new http_1.Headers();
+                                var credss = "grant_type=password"
+                                    + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + _this.rmodel.Email + '&password=' + _this.rmodel.Password;
+                                headerss.append('Content-Type', 'application/X-www-form-urlencoded');
+                                return new Promise(function (resolve) {
+                                    _this._http.post('http://localhost:58056/connect/token', credss, { headers: headerss }).subscribe(function (data2) {
+                                        alert('calling done');
+                                        alert(data2.json().access_token);
+                                        if (data2.json().access_token) {
+                                            _this.token = data2.json().access_token;
+                                            _this.logMsg = "You are logged In Now , Please Wait ....";
+                                            localStorage.setItem("authorizationData", data2.json().access_token);
+                                            localStorage.setItem("auth_key", data2.json().access_token);
+                                            _this.isLoggedin = true;
+                                            _this.mclose();
+                                            _this._parentRouter.parent.navigate(['/Dashboard']);
+                                        }
+                                        else {
+                                            _this.logMsg = "Invalid username or password";
+                                        }
+                                        resolve(_this.isLoggedin);
+                                    }, function (error) { return _this.logMsg = error.json().error_description; });
+                                });
                             }
                             else {
-                                _this.logMsg = "Invalid username or password";
+                                _this.logMsg = data.json().Errors[0].Description;
                             }
                             resolve(_this.isLoggedin);
-                        }, function (error) { return _this.logMsg = error.json().error_description; });
+                        }, function (error) { return _this.logMsg = error.json().Errors[0].Description; });
                     });
                 };
                 __decorate([
