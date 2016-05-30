@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 namespace newoidc.Controllers
 {
     [Authorize]
+    [Route("api/account")]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -123,6 +124,15 @@ namespace newoidc.Controllers
 
         //
         // POST: /Account/Register
+        [Route("api/account/register")]
+        [HttpPost]
+        public async Task<IdentityResult> Register([FromBody]RegisterViewModel dto)
+        {
+            var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email };
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            return result;
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]

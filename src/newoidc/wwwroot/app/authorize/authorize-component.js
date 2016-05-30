@@ -11,7 +11,7 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var core_1, http_1, angular2_jwt_1, router_deprecated_1, ng2_bs3_modal_1;
-    var authorizeComponent, logModel;
+    var authorizeComponent, logModel, registerModel;
     return {
         setters:[
             function (core_1_1) {
@@ -47,6 +47,7 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 };
                 authorizeComponent.prototype.ngOnInit = function () {
                     this.model = new logModel();
+                    this.rmodel = new registerModel();
                     this.logMsg = "Type your credentials.";
                     this.login = true;
                     this.loss = false;
@@ -85,8 +86,11 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                                 _this.mclose();
                                 _this._parentRouter.parent.navigate(['/Dashboard']);
                             }
+                            else {
+                                _this.logMsg = "Invalid username or password";
+                            }
                             resolve(_this.isLoggedin);
-                        });
+                        }, function (error) { return _this.logMsg = error.json().error_description; });
                     });
                 };
                 authorizeComponent.prototype.getapi = function () {
@@ -102,6 +106,31 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 };
                 authorizeComponent.prototype.Logout = function () {
                     console.log("Do logout logic");
+                };
+                authorizeComponent.prototype.userRegister = function () {
+                    var _this = this;
+                    this.isLoggedin = false;
+                    this.rmodel.returnUrl = "http://localhost:58056/connect/token";
+                    var headers = new http_1.Headers();
+                    var creds = JSON.stringify(this.rmodel);
+                    headers.append('Content-Type', 'application/json');
+                    return new Promise(function (resolve) {
+                        _this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe(function (data) {
+                            if (data.json().access_token) {
+                                _this.token = data.json().access_token;
+                                _this.logMsg = "You are logged In Now , Please Wait ....";
+                                localStorage.setItem("authorizationData", data.json().access_token);
+                                localStorage.setItem("auth_key", data.json().access_token);
+                                _this.isLoggedin = true;
+                                _this.mclose();
+                                _this._parentRouter.parent.navigate(['/Dashboard']);
+                            }
+                            else {
+                                _this.logMsg = "Invalid username or password";
+                            }
+                            resolve(_this.isLoggedin);
+                        }, function (error) { return _this.logMsg = error.json().error_description; });
+                    });
                 };
                 __decorate([
                     core_1.ViewChild('myModal'), 
@@ -124,6 +153,12 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 return logModel;
             }());
             exports_1("logModel", logModel);
+            registerModel = (function () {
+                function registerModel() {
+                }
+                return registerModel;
+            }());
+            exports_1("registerModel", registerModel);
         }
     }
 });

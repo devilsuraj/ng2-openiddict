@@ -55,15 +55,15 @@
             <div class="modal-body">
                 <div id="div-register-msg">
                     <div id="icon-register-msg" class="glyphicon glyphicon-chevron-right"></div>
-                    <span id="text-register-msg">Register an account.</span>
+                    <span id="text-register-msg">{{logMsg}}.</span>
                 </div>
-                <input id="register_username" class="form-control" type="text" placeholder="Username (type ERROR for error effect)" required>
-                <input id="register_email" class="form-control" type="text" placeholder="E-Mail" required>
-                <input id="register_password" class="form-control" type="password" placeholder="Password" required>
+                <input id="register_username" [(ngModel)]="rmodel.Email" class="form-control" type="text" placeholder="Email (type ERROR for error effect)" required>
+                <input id="register_email" [(ngModel)]="rmodel.Password" class="form-control" type="password" placeholder="Password" required>
+                <input id="register_password" [(ngModel)]="rmodel.ConfirmPassword" class="form-control" type="password" placeholder="Confirm Password" required>
             </div>
             <div class="modal-footer">
                 <div>
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">Register</button>
+                    <button type="submit" (click)="userRegister()" class="btn btn-primary btn-lg btn-block">Register</button>
                 </div>
              
             </div>

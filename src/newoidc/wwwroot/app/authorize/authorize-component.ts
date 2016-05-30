@@ -29,12 +29,14 @@ export class authorizeComponent{
     public isLoggedin: boolean;
     public logMsg: string;
     public model: logModel;
+    public rmodel: registerModel;
     public login: boolean;
     public register: boolean;
     public loss: boolean;
     public hodeModel: boolean = false;
     ngOnInit() {
         this.model = new logModel();
+        this.rmodel = new registerModel();
         this.logMsg = "Type your credentials.";
         this.login = true;
         this.loss = false;
@@ -66,16 +68,19 @@ export class authorizeComponent{
             this._http.post('http://localhost:58056/connect/token', creds, { headers: headers }).subscribe((data) => {
                 if (data.json().access_token) {
                     this.token = data.json().access_token
-                    this.logMsg="You are logged In Now , Please Wait ....";
+                    this.logMsg = "You are logged In Now , Please Wait ....";
                     localStorage.setItem("authorizationData", data.json().access_token);
                     localStorage.setItem("auth_key", data.json().access_token);
                     this.isLoggedin = true;
                     this.mclose();
-                   // dialog.dismiss();
+                    // dialog.dismiss();
                     this._parentRouter.parent.navigate(['/Dashboard']);
                 }
+                else {
+                    this.logMsg = "Invalid username or password";
+                }
                 resolve(this.isLoggedin)
-            }
+            },error=>this.logMsg= error.json().error_description
             )
         })
     }
@@ -101,8 +106,41 @@ export class authorizeComponent{
         console.log("Do logout logic");
         //this.securityService.Logoff();
     }
+    public userRegister() {
+        this.isLoggedin = false;
+       // this.rmodel.returnUrl = "http://localhost:58056/connect/token";
+        var headers = new Headers();
+        var creds = JSON.stringify(this.rmodel);
+        headers.append('Content-Type', 'application/json');
+        return new Promise((resolve) => {
+            this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe((data) => {
+                if (data.json().access_token) {
+                    this.token = data.json().access_token
+                    this.logMsg = "You are logged In Now , Please Wait ....";
+                    localStorage.setItem("authorizationData", data.json().access_token);
+                    localStorage.setItem("auth_key", data.json().access_token);
+                    this.isLoggedin = true;
+                    this.mclose();
+                    // dialog.dismiss();
+                    this._parentRouter.parent.navigate(['/Dashboard']);
+                }
+                else {
+                    this.logMsg = "Invalid username or password";
+                }
+                resolve(this.isLoggedin)
+            }, error => this.logMsg = error.json().error_description
+            )
+        })
+    }
 }
 export class logModel {
     public username: string;
     public password: string;
+}
+
+export class registerModel {
+    public Email: string;
+    public Password: string;
+    public ConfirmPassword: string;
+   // public returnUrl: string;
 }
