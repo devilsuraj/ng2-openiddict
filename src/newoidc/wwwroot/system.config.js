@@ -5,14 +5,16 @@
         'app': 'app', // 'dist'
         'rxjs': 'libs/rxjs',
         '@angular': 'libs/@angular',
-        'angular2-jwt': 'libs/angular2-jwt/angular2-jwt.js'
+        'angular2-jwt': 'libs/angular2-jwt/angular2-jwt.js',
+        'ng2-bs3-modal': 'libs/ng2-bs3-modal'
     };
 
     // packages tells the System loader how to load when no filename and/or no extension
     var packages = {
         'app': { main: 'boot.js', defaultExtension: 'js' },
         'rxjs': { defaultExtension: 'js' },
-          'angular2-jwt': { defaultExtension: 'js' }
+        'angular2-jwt': { defaultExtension: 'js' },
+        'ng2-bs3-modal': { defaultExtension: 'js' }
     };
 
     var packageNames = [

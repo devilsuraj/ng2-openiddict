@@ -17,7 +17,8 @@ var packagesToMove = [
    paths.npmSrc + '/@angular/**/*.js',
    paths.npmSrc + '/jquery/dist/jquery.min.js',
    paths.npmSrc + '/angular2localization/bundles/*.js',
-    paths.npmSrc + '/angular2-jwt/angular2-jwt.js'
+    paths.npmSrc + '/angular2-jwt/angular2-jwt.js',
+        paths.npmSrc + '/ng2-bs3-modal/ng2-bs3-modal.js'
 ];
 
 gulp.task('clean', function () {
@@ -35,6 +36,7 @@ gulp.task('copyNpmTo_wwwrootLibs', ['clean'], function () {
     gulp.src(packagesToMove[7]).pipe(gulp.dest(paths.libTarget));
     gulp.src(packagesToMove[8]).pipe(gulp.dest(paths.libTarget + 'angular2localization/bundles'));
     gulp.src(packagesToMove[9]).pipe(gulp.dest(paths.libTarget + 'angular2-jwt'));
+    gulp.src(packagesToMove[10]).pipe(gulp.dest(paths.libTarget + 'ng2-bs3-modal'));
 });
 
 +gulp.task('default', ['copyNpmTo_wwwrootLibs']);

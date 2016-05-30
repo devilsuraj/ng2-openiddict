@@ -1,11 +1,108 @@
-﻿import {Component} from '@angular/core'
+﻿import {Component, ViewChild } from '@angular/core'
+import {Http, Headers} from '@angular/http';
+import {JwtHelper, AuthHttp, AuthConfig, AUTH_PROVIDERS} from 'angular2-jwt'
+import {Router} from '@angular/router-deprecated';
+import { MODAL_DIRECTIVES, ModalComponent  } from 'ng2-bs3-modal/ng2-bs3-modal';
 declare var System;
 @Component({
     selector: 'authorize',
-    templateUrl:'./app/authorize/authorize-component.html'
+    templateUrl: './app/authorize/authorize-component.html',
+    directives: [MODAL_DIRECTIVES]
 })
+
 export class authorizeComponent{
-    constructor() {
-        System.import('/js/site.js');
+    constructor(public jwtHelper: JwtHelper, private _http: Http, private _parentRouter: Router) {
+       // System.import('/js/site.js');
     }
+    @ViewChild('myModal')
+    modal: ModalComponent;
+
+    mclose() {
+        this.modal.close();
+    }
+
+    mopen() {
+        this.modal.open();
+    }
+    public token: any = "";
+    public detoken: any = "";
+    public isLoggedin: boolean;
+    public logMsg: string;
+    public model: logModel;
+    public login: boolean;
+    public register: boolean;
+    public loss: boolean;
+    public hodeModel: boolean = false;
+    ngOnInit() {
+        this.model = new logModel();
+        this.logMsg = "Type your credentials.";
+        this.login = true;
+        this.loss = false;
+        this.register = false;
+    }
+    public callLogin() {
+        this.login = true;
+        this.register = false;
+        this.loss = false;
+    }
+    public callLoss() {
+        this.login = false;
+        this.register = false;
+        this.loss = true;
+    }
+    public callRegister() {
+        this.login = false;
+        this.register = true;
+        this.loss = false;
+    }
+
+    public Login() {
+        this.isLoggedin = false;
+        var headers = new Headers();
+        var creds = "grant_type=password"
+            + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + this.model.username + '&password=' + this.model.password;
+        headers.append('Content-Type', 'application/X-www-form-urlencoded');
+        return new Promise((resolve) => {
+            this._http.post('http://localhost:58056/connect/token', creds, { headers: headers }).subscribe((data) => {
+                if (data.json().access_token) {
+                    this.token = data.json().access_token
+                    this.logMsg="You are logged In Now , Please Wait ....";
+                    localStorage.setItem("authorizationData", data.json().access_token);
+                    localStorage.setItem("auth_key", data.json().access_token);
+                    this.isLoggedin = true;
+                    this.mclose();
+                   // dialog.dismiss();
+                    this._parentRouter.parent.navigate(['/Dashboard']);
+                }
+                resolve(this.isLoggedin)
+            }
+            )
+        })
+    }
+    public getapi() {
+        this.isLoggedin = false;
+        var headers = new Headers();
+        //  var creds = "grant_type=password"
+        //      + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + "d@d.d" + '&password=' + "Polardevil#1";
+        headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
+        return new Promise((resolve) => {
+            this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe((data) => {
+                alert(JSON.stringify(data.json()));
+                // resolve(this.isLoggedin)
+            }
+            )
+        })
+    }
+
+    /*  private store(key: string, value: any) {
+          this.storage.setItem(key, JSON.stringify(value));
+      }*/
+    public Logout() {
+        console.log("Do logout logic");
+        //this.securityService.Logoff();
+    }
+}
+export class logModel {
+    public username: string;
+    public password: string;
 }
