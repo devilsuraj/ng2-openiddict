@@ -46,5 +46,16 @@ namespace newoidc.Controllers
             if (user == null) return Ok("No user - not logged in");// if Authorize is not applied
             return Ok(user);
         }
+
+        [HttpGet]
+        [Authorize]
+        [Route("api/test2"), HttpGet]
+        public async Task<IActionResult> GetToken()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var Token = await _userManager.GetAuthenticationTokenAsync(user,"OpenIdDict","bearer");
+            if (user == null) return Ok("No user - not logged in");// if Authorize is not applied
+            return Ok(Token);
+        }
     }
 }

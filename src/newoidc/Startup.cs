@@ -43,10 +43,10 @@ namespace newoidc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
+           /*
             services.AddAuthentication(options => {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            });
+            });*/
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -83,12 +83,17 @@ namespace newoidc
             }
          
             app.UseStaticFiles();
-            app.UseOAuthValidation();
+          //  app.UseOAuthValidation();
             app.UseIdentity();
             app.UseGoogleAuthentication(new GoogleOptions
             {
-                ClientId = "560027070069-37ldt4kfuohhu3m495hk2j4pjp92d382.apps.googleusercontent.com",
-                ClientSecret = "n2Q-GEw9RQjzcRbU3qhfTj8f"
+                ClientId = "862227465575-q1spfclcfvflg4tpesfkle4e0jc3q987.apps.googleusercontent.com",
+                ClientSecret = "ozzg2VvH2TYbSbBYWE_HIYG5",
+             SaveTokens=true,
+            AccessType="offline"
+            
+            
+                
             });
 
             app.UseTwitterAuthentication(new TwitterOptions
@@ -122,13 +127,13 @@ namespace newoidc
                             .UnsafeInline());
                 });
             });
-               app.UseCookieAuthentication(new CookieAuthenticationOptions
+         /*      app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
                 LoginPath = new PathString("/signin")
                
-            });
+            });*/
             app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
             {   ClientId = "myClient",
                 ClientSecret = "secret_secret_secret",

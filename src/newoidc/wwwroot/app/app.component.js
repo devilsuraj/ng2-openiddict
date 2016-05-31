@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router-deprecated', '@angular/http', 'angular2-jwt', './authorize/authorize-component', './User/user-component', './welcome-component'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/router-deprecated', '@angular/http', 'angular2-jwt', './authorize/authorize-component', './User/user-component', './welcome-component', './authorize/externalauth'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_deprecated_1, http_1, angular2_jwt_1, authorize_component_1, user_component_1, welcome_component_1, router_deprecated_2;
+    var core_1, router_deprecated_1, http_1, angular2_jwt_1, authorize_component_1, user_component_1, welcome_component_1, externalauth_1, router_deprecated_2;
     var AppComponent;
     return {
         setters:[
@@ -35,6 +35,9 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
             },
             function (welcome_component_1_1) {
                 welcome_component_1 = welcome_component_1_1;
+            },
+            function (externalauth_1_1) {
+                externalauth_1 = externalauth_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
@@ -65,7 +68,8 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
                     router_deprecated_1.RouteConfig([
                         { path: '/', name: 'Default', component: welcome_component_1.welcome, useAsDefault: true },
                         { path: '/login', name: 'Login', component: authorize_component_1.authorizeComponent },
-                        { path: '/dashboard', name: 'Dashboard', component: user_component_1.userComponent }
+                        { path: '/dashboard', name: 'Dashboard', component: user_component_1.userComponent },
+                        { path: '/extauth', name: 'Extauth', component: externalauth_1.extauthorizeComponent }
                     ]), 
                     __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_2.Router])
                 ], AppComponent);

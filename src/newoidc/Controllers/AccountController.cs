@@ -128,7 +128,7 @@ namespace newoidc.Controllers
         [Route("api/account/register")]
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IdentityResult> Register([FromBody]RegisterViewModel dto)
+        public async Task<IdentityResult> RegisterHttp([FromBody]RegisterViewModel dto)
         {
             var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email };
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -139,12 +139,13 @@ namespace newoidc.Controllers
         [HttpGet]
         public IActionResult ExtLogin(string provider)
         {
-            var returnUrl = "http://www.google.com";
+            var returnUrl = "http://localhost:58056/extauth";
             var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
         }
-        /*
+         
+        
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -173,7 +174,7 @@ namespace newoidc.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
-        */
+        
         //
         // POST: /Account/LogOff
         [HttpPost]
@@ -186,6 +187,7 @@ namespace newoidc.Controllers
         }
 
         //
+     
         // POST: /Account/ExternalLogin
         [HttpPost]
         [AllowAnonymous]
@@ -195,6 +197,8 @@ namespace newoidc.Controllers
             // Request a redirect to the external login provider.
             var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            //context.HttpContext.GetOwinContext().Authentication.Challenge(properties, provider);
+          
             return Challenge(properties, provider);
         }
         
@@ -499,7 +503,7 @@ namespace newoidc.Controllers
             return _userManager.GetUserAsync(HttpContext.User);
         }
 
-        private IActionResult RedirectToLocal(string returnUrl)
+        private ActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
             {
@@ -507,7 +511,9 @@ namespace newoidc.Controllers
             }
             else
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                // returnUrl = returnUrl.Replace("#","");
+                Response.Redirect(returnUrl);
+                return Redirect(returnUrl);
             }
         }
 

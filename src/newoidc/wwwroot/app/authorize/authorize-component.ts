@@ -38,6 +38,11 @@ export class authorizeComponent{
     public hodeModel: boolean = false;
     ngOnInit() {
        // this.getexternals();
+       // this.getapi();
+        if (localStorage.getItem('auth_key')) {
+            this._parentRouter.navigate(['/Dashboard']);
+        }
+       
         this.model = new logModel();
         this.rmodel = new registerModel();
         this.pros = new extprovider();
@@ -90,21 +95,13 @@ export class authorizeComponent{
     }
 
 
-    public extLogin(provider:string) {
-        this.isLoggedin = false;
-        this.pros.provider = "Google";
-        this.pros.returnUrl = "http://google.com";
-        var headers = new Headers();
-        var creds = provider;
-        headers.append('Content-Type', 'application/X-www-form-urlencoded');
-        return new Promise((resolve) => {
-            this._http.post("http://localhost:58056/account/externallogin",JSON.stringify( this.pros), {headers:headers}).subscribe(response => {
-                alert(response.headers.keys());
-            }, error => {
-                alert(error.headers.keys());
+    public extLogin(provider: string) {
+        window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400')
+        setTimeout(() => {
+            if (localStorage.getItem('auth_key')) {
+                this._parentRouter.navigate(['/Dashboard']);
             }
-            )
-        })
+        }, 1000);
     }
 
     public getapi() {
@@ -112,9 +109,9 @@ export class authorizeComponent{
         var headers = new Headers();
         //  var creds = "grant_type=password"
         //      + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + "d@d.d" + '&password=' + "Polardevil#1";
-        headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
+        headers.append("Authorization", "Bearer " + "CfDJ8D4ST5ObdZdBt5Xa8O7w3OrXIgeVGcDtHrC09JvKkdP7jkJaXrf9ttEL8Eaq33rhBYKs8ZKSboFvtnRcoSroDkzMt34r93Jv9t2PtL3avXprnRwwsWrPEPO73PGCCSeNLotPP+X0knRneiqFhJV994c1ECW2SuEA3RUiQkuC46k1IVsKGLz374BOR7YGNHB6+NpaS4WPmKi7za/m98BzXperOHBuqKgc73tCkRpSPJARAGl/OKQn/LRUf3PaSOIwaQ==");
         return new Promise((resolve) => {
-            this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe((data) => {
+            this._http.get('http://localhost:58056/api/test',{ headers: headers }).subscribe((data) => {
                 alert(JSON.stringify(data.json()));
                 // resolve(this.isLoggedin)
             }

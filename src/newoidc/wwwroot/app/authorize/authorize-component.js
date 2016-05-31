@@ -46,6 +46,9 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     this.modal.open();
                 };
                 authorizeComponent.prototype.ngOnInit = function () {
+                    if (localStorage.getItem('auth_key')) {
+                        this._parentRouter.navigate(['/Dashboard']);
+                    }
                     this.model = new logModel();
                     this.rmodel = new registerModel();
                     this.pros = new extprovider();
@@ -96,25 +99,18 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 };
                 authorizeComponent.prototype.extLogin = function (provider) {
                     var _this = this;
-                    this.isLoggedin = false;
-                    this.pros.provider = "Google";
-                    this.pros.returnUrl = "http://google.com";
-                    var headers = new http_1.Headers();
-                    var creds = provider;
-                    headers.append('Content-Type', 'application/X-www-form-urlencoded');
-                    return new Promise(function (resolve) {
-                        _this._http.post("http://localhost:58056/account/externallogin", JSON.stringify(_this.pros), { headers: headers }).subscribe(function (response) {
-                            alert(response.headers.keys());
-                        }, function (error) {
-                            alert(error.headers.keys());
-                        });
-                    });
+                    window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400');
+                    setTimeout(function () {
+                        if (localStorage.getItem('auth_key')) {
+                            _this._parentRouter.navigate(['/Dashboard']);
+                        }
+                    }, 1000);
                 };
                 authorizeComponent.prototype.getapi = function () {
                     var _this = this;
                     this.isLoggedin = false;
                     var headers = new http_1.Headers();
-                    headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
+                    headers.append("Authorization", "Bearer " + "CfDJ8D4ST5ObdZdBt5Xa8O7w3OrXIgeVGcDtHrC09JvKkdP7jkJaXrf9ttEL8Eaq33rhBYKs8ZKSboFvtnRcoSroDkzMt34r93Jv9t2PtL3avXprnRwwsWrPEPO73PGCCSeNLotPP+X0knRneiqFhJV994c1ECW2SuEA3RUiQkuC46k1IVsKGLz374BOR7YGNHB6+NpaS4WPmKi7za/m98BzXperOHBuqKgc73tCkRpSPJARAGl/OKQn/LRUf3PaSOIwaQ==");
                     return new Promise(function (resolve) {
                         _this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe(function (data) {
                             alert(JSON.stringify(data.json()));
