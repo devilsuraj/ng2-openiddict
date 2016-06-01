@@ -137,9 +137,9 @@ namespace newoidc.Controllers
         [Route("api/account/externalAccess")]
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult ExtLogin(string provider)
+        public IActionResult ExtLogin(string provider, string returnUrl = "http://localhost:58056/connect/authorize?client_id=myClient&redirect_uri=http://localhost:58056/signin-oidc&response_type=id_token&scope=openid&nonce=123456")
         {
-            var returnUrl = "http://localhost:58056/extauth";
+           
             var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
@@ -178,6 +178,7 @@ namespace newoidc.Controllers
         //
         // POST: /Account/LogOff
         [HttpPost]
+      
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
         {
@@ -186,8 +187,17 @@ namespace newoidc.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
+        // POST: /Account/LogOff
+        [HttpGet]
+        [Route("api/account/logout")]
+        public async Task<string> LogOut()
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation(4, "User logged out.");
+            return "done";
+        }
         //
-     
+
         // POST: /Account/ExternalLogin
         [HttpPost]
         [AllowAnonymous]
@@ -503,16 +513,16 @@ namespace newoidc.Controllers
             return _userManager.GetUserAsync(HttpContext.User);
         }
 
-        private ActionResult RedirectToLocal(string returnUrl)
+        private IActionResult RedirectToLocal(string returnUrl)
         {
+            returnUrl = returnUrl.Replace("#", "");
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
             else
             {
-                // returnUrl = returnUrl.Replace("#","");
-                Response.Redirect(returnUrl);
+                
                 return Redirect(returnUrl);
             }
         }

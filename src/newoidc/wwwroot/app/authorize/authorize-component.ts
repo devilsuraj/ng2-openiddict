@@ -36,6 +36,7 @@ export class authorizeComponent{
     public loss: boolean;
     public externals: string;
     public hodeModel: boolean = false;
+  //  public instance;
     ngOnInit() {
        // this.getexternals();
        // this.getapi();
@@ -96,12 +97,16 @@ export class authorizeComponent{
 
 
     public extLogin(provider: string) {
-        window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400')
-        setTimeout(() => {
+        var instance = this;
+        var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400');
+        setInterval(function () {
             if (localStorage.getItem('auth_key')) {
-                this._parentRouter.navigate(['/Dashboard']);
-            }
-        }, 1000);
+                popup_window.close();
+                instance.mclose();
+                instance._parentRouter.parent.navigate(['/Dashboard']);
+            
+            } }, 3000);
+       
     }
 
     public getapi() {

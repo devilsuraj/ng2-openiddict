@@ -24,7 +24,7 @@ import {Router, RouterOutlet, ComponentInstruction} from '@angular/router-deprec
         { path: '/', name: 'Default', component: welcome, useAsDefault:true  },
         { path: '/login', name: 'Login', component: authorizeComponent},
         { path: '/dashboard', name: 'Dashboard', component: userComponent },
-        { path: '/extauth', name: 'Extauth', component: extauthorizeComponent }
+        { path: '/signin-oidc', name: 'Extauth', component: extauthorizeComponent }
         
 ])
 export class AppComponent {

@@ -1,7 +1,7 @@
-﻿import {Component, ViewChild } from '@angular/core'
-import {Http, Headers} from '@angular/http';
-import {JwtHelper, AuthHttp, AuthConfig, AUTH_PROVIDERS} from 'angular2-jwt'
-import {Router} from '@angular/router-deprecated';
+﻿import {Component } from '@angular/core'
+
+import {JwtHelper} from 'angular2-jwt'
+
 declare var System;
 @Component({
     selector: 'authorize',
@@ -10,42 +10,21 @@ declare var System;
 })
 
 export class extauthorizeComponent {
-    constructor(public jwtHelper: JwtHelper, private _http: Http, private _parentRouter: Router) {
-        // System.import('/js/site.js');
+    constructor(public jwtHelper: JwtHelper) {
+        var x =  location.hash;
+       // alert(x);
+        x.replace("#id_token=", "");
+        localStorage.setItem("auth_key", x);
+       // alert(JSON.stringify(this.jwtHelper.decodeToken(x)));
+       // window.close();
     }
    
-    public token: any = "";
-    public detoken: any = "";
-    public isLoggedin: boolean;
-    public logMsg: string;
-    public login: boolean;
-    public register: boolean;
-    public loss: boolean;
-    public externals: string;
-    public hodeModel: boolean = false;
-    ngOnInit() {
-        // this.getexternals();
-        this.getapi();
-     
    
-    }
-    public getapi() {
-        this.isLoggedin = false;
-        var headers = new Headers();
-         return new Promise((resolve) => {
-            this._http.get('http://localhost:58056/api/test2').subscribe((data) => {
-                localStorage.setItem("authorizationData", data.json());
-                localStorage.setItem("auth_key", data.json());
-                window.close();
-                // resolve(this.isLoggedin)
-            }
-            )
-        })
-    }
+   
 
 
    
 
    
 
-}
+};

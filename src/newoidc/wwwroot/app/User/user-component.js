@@ -48,8 +48,13 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
                     });
                 };
                 userComponent.prototype.Logout = function () {
-                    localStorage.removeItem("auth_key");
-                    this._parentRouter.parent.navigate(['/Default']);
+                    var _this = this;
+                    var headers = new http_1.Headers();
+                    headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
+                    this._http.get('http://localhost:58056/api/account/logout', { headers: headers }).subscribe(function (data) {
+                        localStorage.removeItem("auth_key");
+                        _this._parentRouter.parent.navigate(['/Default']);
+                    });
                 };
                 userComponent = __decorate([
                     core_1.Component({

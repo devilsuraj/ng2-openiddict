@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using newoidc.Data;
 using Microsoft.AspNetCore.Identity;
 using newoidc.Models;
+using Microsoft.AspNetCore.Authentication;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System;
 
 namespace newoidc.Controllers
 {
@@ -47,15 +51,39 @@ namespace newoidc.Controllers
             return Ok(user);
         }
 
-        [HttpGet]
-        [Authorize]
+     
+
         [Route("api/test2"), HttpGet]
         public async Task<IActionResult> GetToken()
+
+
         {
+            using (var client = new HttpClient())
+            {
+                
+                var token = await HttpContext.Authentication.GetTokenAsync("Id_Token");
+                if (string.IsNullOrEmpty(token))
+                {
+                    throw new InvalidOperationException("The access token cannot be found in the authentication ticket. " +
+                                                        "Make sure that SaveTokens is set to true in the OIDC options.");
+                }
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:58056/api/message");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                // var response = await client.SendAsync(request, cancellationToken);
+                // response.EnsureSuccessStatusCode();
+
+                return Ok(token);
+
+
+            }
+             
+                 /*
             var user = await _userManager.GetUserAsync(User);
-            var Token = await _userManager.GetAuthenticationTokenAsync(user,"OpenIdDict","bearer");
-            if (user == null) return Ok("No user - not logged in");// if Authorize is not applied
-            return Ok(Token);
+            var token = await HttpContext.Authentication.GetTokenAsync("access_token");
+            if (user == null) return Ok("No user - not logged in");// if Authorize is not applied*/
+            
         }
     }
 }

@@ -34,8 +34,12 @@ export class userComponent {
     }
 
     public Logout() {
-        localStorage.removeItem("auth_key");
-        this._parentRouter.parent.navigate(['/Default']);
-        //this.securityService.Logoff();
+        var headers = new Headers();
+        headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
+        this._http.get('http://localhost:58056/api/account/logout', { headers: headers }).subscribe((data) => {
+            localStorage.removeItem("auth_key");
+            this._parentRouter.parent.navigate(['/Default']);
+            //this.securityService.Logoff();
+        });
     }
 }

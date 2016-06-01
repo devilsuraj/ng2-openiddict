@@ -69,7 +69,7 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
                         { path: '/', name: 'Default', component: welcome_component_1.welcome, useAsDefault: true },
                         { path: '/login', name: 'Login', component: authorize_component_1.authorizeComponent },
                         { path: '/dashboard', name: 'Dashboard', component: user_component_1.userComponent },
-                        { path: '/extauth', name: 'Extauth', component: externalauth_1.extauthorizeComponent }
+                        { path: '/signin-oidc', name: 'Extauth', component: externalauth_1.extauthorizeComponent }
                     ]), 
                     __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_2.Router])
                 ], AppComponent);

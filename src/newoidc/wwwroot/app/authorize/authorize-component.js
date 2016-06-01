@@ -98,13 +98,15 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     });
                 };
                 authorizeComponent.prototype.extLogin = function (provider) {
-                    var _this = this;
-                    window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400');
-                    setTimeout(function () {
+                    var instance = this;
+                    var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400');
+                    setInterval(function () {
                         if (localStorage.getItem('auth_key')) {
-                            _this._parentRouter.navigate(['/Dashboard']);
+                            popup_window.close();
+                            instance.mclose();
+                            instance._parentRouter.parent.navigate(['/Dashboard']);
                         }
-                    }, 1000);
+                    }, 3000);
                 };
                 authorizeComponent.prototype.getapi = function () {
                     var _this = this;

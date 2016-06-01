@@ -16,6 +16,7 @@ using newoidc.Data;
 using newoidc.Models;
 using newoidc.Services;
 using NWebsec.AspNetCore.Middleware;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace newoidc
 {
@@ -43,11 +44,12 @@ namespace newoidc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           /*
+           
             services.AddAuthentication(options => {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            });*/
+            });
             // Add framework services.
+            
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -57,6 +59,7 @@ namespace newoidc
                 .AddOpenIddict();
 
             services.AddMvc();
+
           
 
     
@@ -71,29 +74,18 @@ namespace newoidc
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
-                app.UseBrowserLink();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-         
+            app.UseDeveloperExceptionPage();
+            app.UseDatabaseErrorPage();
+            app.UseBrowserLink();
+
             app.UseStaticFiles();
-          //  app.UseOAuthValidation();
+           app.UseOAuthValidation();
             app.UseIdentity();
             app.UseGoogleAuthentication(new GoogleOptions
             {
                 ClientId = "862227465575-q1spfclcfvflg4tpesfkle4e0jc3q987.apps.googleusercontent.com",
-                ClientSecret = "ozzg2VvH2TYbSbBYWE_HIYG5",
-             SaveTokens=true,
-            AccessType="offline"
-            
-            
-                
+                ClientSecret = "ozzg2VvH2TYbSbBYWE_HIYG5"
+        
             });
 
             app.UseTwitterAuthentication(new TwitterOptions
@@ -106,7 +98,7 @@ namespace newoidc
             // This must be *after* "app.UseIdentity();" above
             app.UseOpenIddict(options =>
             {
-               // options.Options.UseJwtTokens();
+                options.Options.UseJwtTokens();
                 // NOTE: for dev consumption only! for live, this is not encouraged!
               //  options.Options.AllowInsecureHttp = true;
                // options.Options.ApplicationCanDisplayErrors = true;
@@ -141,33 +133,33 @@ namespace newoidc
                 RequireHttpsMetadata = false,
                 GetClaimsFromUserInfoEndpoint = true,
                 SaveTokens = true,
-                ResponseType = OpenIdConnectResponseTypes.Code,
+                ResponseType = OpenIdConnectResponseTypes.IdToken,
                 Authority = "http://localhost:58056/",
                 Scope = { "email", "roles" }
             });
-           
-       
-            using (var context = app.ApplicationServices.GetRequiredService<ApplicationDbContext>())
-            {
-                context.Database.EnsureCreated();
-                if (!context.Applications.Any())
-                {
-                    context.Applications.Add(new Application
-                    {
-                        Id = "myClient",
-                        
-                        DisplayName = "My client application",
-                        RedirectUri = "http://localhost:58056" + "/signin-oidc",
-                        LogoutRedirectUri = "http://localhost:58056",
-                        Secret = Crypto.HashPassword("secret_secret_secret"),
-                        Type = OpenIddictConstants.ApplicationTypes.Confidential
-                    });
 
-                    context.SaveChanges();
-                }
-            }
-           
+            /* //// this thing is required at first start to get the details stored in db
+                 using (var context = app.ApplicationServices.GetRequiredService<ApplicationDbContext>())
+                 {
+                     context.Database.EnsureCreated();
+                     if (!context.Applications.Any())
+                     {
+                         context.Applications.Add(new Application
+                         {
+                             Id = "myClient",
+                             DisplayName = "My client application",
+                             RedirectUri = "http://localhost:58056" + "/signin-oidc",
+                             LogoutRedirectUri = "http://localhost:58056",
+                             Secret = Crypto.HashPassword("secret_secret_secret"),
+                             Type = OpenIddictConstants.ApplicationTypes.Public
+                         });
 
+                         context.SaveChanges();
+                     }
+                 }
+
+         */
+           
             // use jwt bearer authentication
             app.UseJwtBearerAuthentication(new JwtBearerOptions
             {
@@ -182,7 +174,13 @@ namespace newoidc
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+                
+                routes.MapRoute(
+                    name: "spa-fallback",
+                    template: "{*url}",
+                    defaults: new { controller = "Home", action = "Index" });
             });
+          
         }
     }
 }

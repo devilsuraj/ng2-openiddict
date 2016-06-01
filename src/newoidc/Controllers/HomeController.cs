@@ -14,18 +14,23 @@ namespace newoidc.Controllers
 {
     public class HomeController : Controller
     {
-        [HttpGet("~/")]
         public ActionResult Index()
         {
             return View("index");
         }
+        [HttpGet("~/home/getToken")]
+        public ActionResult getToken()
+        {
+            return View("index");
+        }
 
-        [Authorize, HttpPost("~/")]
-        public async Task<ActionResult> Index(CancellationToken cancellationToken)
+        [Authorize, HttpPost("~/home/getToken")]
+        public async Task<ActionResult> getToken(CancellationToken cancellationToken)
         {
             using (var client = new HttpClient())
             {
-                
+               
+               
                     var token = await HttpContext.Authentication.GetTokenAsync("access_token");
                     if (string.IsNullOrEmpty(token))
                     {
