@@ -77,9 +77,11 @@ export class authorizeComponent{
         return new Promise((resolve) => {
             this._http.post('http://localhost:58056/connect/token', creds, { headers: headers }).subscribe((data) => {
                 if (data.json().access_token) {
+                    alert(JSON.stringify(this.token));
                     this.token = data.json().access_token
+                    alert(JSON.stringify(this.jwtHelper.decodeToken(this.token)));
                     this.logMsg = "You are logged In Now , Please Wait ....";
-                    localStorage.setItem("authorizationData", data.json().access_token);
+                  //  localStorage.setItem("authorizationData", data.json().access_token);
                     localStorage.setItem("auth_key", data.json().access_token);
                     this.isLoggedin = true;
                     this.mclose();
@@ -169,7 +171,7 @@ export class authorizeComponent{
                             if (data2.json().access_token) {
                                 this.token = data2.json().access_token
                                 this.logMsg = "You are logged In Now , Please Wait ....";
-                                localStorage.setItem("authorizationData", data2.json().access_token);
+                               // localStorage.setItem("authorizationData", data2.json().access_token);
                                 localStorage.setItem("auth_key", data2.json().access_token);
                                 this.isLoggedin = true;
                                 this.mclose();

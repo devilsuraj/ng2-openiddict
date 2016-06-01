@@ -82,9 +82,10 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     return new Promise(function (resolve) {
                         _this._http.post('http://localhost:58056/connect/token', creds, { headers: headers }).subscribe(function (data) {
                             if (data.json().access_token) {
+                                alert(JSON.stringify(_this.token));
                                 _this.token = data.json().access_token;
+                                alert(JSON.stringify(_this.jwtHelper.decodeToken(_this.token)));
                                 _this.logMsg = "You are logged In Now , Please Wait ....";
-                                localStorage.setItem("authorizationData", data.json().access_token);
                                 localStorage.setItem("auth_key", data.json().access_token);
                                 _this.isLoggedin = true;
                                 _this.mclose();
@@ -150,7 +151,6 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                                         if (data2.json().access_token) {
                                             _this.token = data2.json().access_token;
                                             _this.logMsg = "You are logged In Now , Please Wait ....";
-                                            localStorage.setItem("authorizationData", data2.json().access_token);
                                             localStorage.setItem("auth_key", data2.json().access_token);
                                             _this.isLoggedin = true;
                                             _this.mclose();

@@ -44,10 +44,10 @@ namespace newoidc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
+      /*
             services.AddAuthentication(options => {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            });
+            });*/
             // Add framework services.
             
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -79,7 +79,7 @@ namespace newoidc
             app.UseBrowserLink();
 
             app.UseStaticFiles();
-           app.UseOAuthValidation();
+          // app.UseOAuthValidation();
             app.UseIdentity();
             app.UseGoogleAuthentication(new GoogleOptions
             {
@@ -125,8 +125,8 @@ namespace newoidc
                 AutomaticChallenge = true,
                 LoginPath = new PathString("/signin")
                
-            });*/
-            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
+            });/*
+           /* app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
             {   ClientId = "myClient",
                 ClientSecret = "secret_secret_secret",
                 PostLogoutRedirectUri = "http://localhost:58056",
@@ -136,7 +136,7 @@ namespace newoidc
                 ResponseType = OpenIdConnectResponseTypes.IdToken,
                 Authority = "http://localhost:58056/",
                 Scope = { "email", "roles" }
-            });
+            });*/
 
             /* //// this thing is required at first start to get the details stored in db
                  using (var context = app.ApplicationServices.GetRequiredService<ApplicationDbContext>())
@@ -161,14 +161,14 @@ namespace newoidc
          */
            
             // use jwt bearer authentication
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
+         /*   app.UseJwtBearerAuthentication(new JwtBearerOptions
             {
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
                 RequireHttpsMetadata = false,
                 Audience = "http://localhost:58056/",
                 Authority = "http://localhost:58056/"
-            });
+            });*/
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
