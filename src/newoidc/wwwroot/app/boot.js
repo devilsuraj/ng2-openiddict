@@ -1,7 +1,7 @@
-System.register(['@angular/platform-browser-dynamic', '@angular/http', './app.component', './app.constants'], function(exports_1, context_1) {
+System.register(['@angular/platform-browser-dynamic', '@angular/http', './app.component', './app.constants', 'angular2-jwt', './authorize/authoriza-service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var platform_browser_dynamic_1, http_1, app_component_1, app_constants_1;
+    var platform_browser_dynamic_1, http_1, app_component_1, app_constants_1, angular2_jwt_1, authoriza_service_1;
     return {
         setters:[
             function (platform_browser_dynamic_1_1) {
@@ -15,10 +15,17 @@ System.register(['@angular/platform-browser-dynamic', '@angular/http', './app.co
             },
             function (app_constants_1_1) {
                 app_constants_1 = app_constants_1_1;
+            },
+            function (angular2_jwt_1_1) {
+                angular2_jwt_1 = angular2_jwt_1_1;
+            },
+            function (authoriza_service_1_1) {
+                authoriza_service_1 = authoriza_service_1_1;
             }],
         execute: function() {
             platform_browser_dynamic_1.bootstrap(app_component_1.AppComponent, [
-                http_1.HTTP_PROVIDERS,
+                angular2_jwt_1.JwtHelper,
+                http_1.HTTP_PROVIDERS, authoriza_service_1.authervice,
                 app_constants_1.Configuration
             ]);
         }

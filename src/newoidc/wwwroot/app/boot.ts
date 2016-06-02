@@ -4,12 +4,14 @@ import { HTTP_PROVIDERS } from '@angular/http';
 //import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import { AppComponent } from './app.component';
 import { Configuration } from './app.constants';
-
+import {JwtHelper, AuthHttp, AuthConfig, AUTH_PROVIDERS} from 'angular2-jwt'
+import {authervice} from './authorize/authoriza-service';
 
 
 
 bootstrap(AppComponent, [
-    
-    HTTP_PROVIDERS,
+        
+JwtHelper,
+    HTTP_PROVIDERS, authervice,
     Configuration
 ]);

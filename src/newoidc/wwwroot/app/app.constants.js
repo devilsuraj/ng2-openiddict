@@ -20,8 +20,8 @@ System.register(['@angular/core'], function(exports_1, context_1) {
         execute: function() {
             Configuration = (function () {
                 function Configuration() {
-                    this.Server = "https://localhost:58056/";
-                    this.FileServer = "https://localhost:58056/";
+                    this.Server = "http://localhost:58056";
+                    this.FileServer = "http://localhost:58056/";
                 }
                 Configuration = __decorate([
                     core_1.Injectable(), 

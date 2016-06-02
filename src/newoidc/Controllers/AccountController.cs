@@ -12,10 +12,8 @@ using newoidc.Models;
 using newoidc.Models.AccountViewModels;
 using newoidc.Services;
 using newoidc.Data;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Newtonsoft.Json;
+
 
 namespace newoidc.Controllers
 {
@@ -44,28 +42,7 @@ namespace newoidc.Controllers
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
 
-        //
-        [HttpGet("~/signin")]
-        public ActionResult SignIn()
-        {
-            // Instruct the OIDC client middleware to redirect the user agent to the identity provider.
-            // Note: the authenticationType parameter must match the value configured in Startup.cs
-            return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
-            {
-                RedirectUri = "/"
-            });
-        }
-
-        [HttpGet("~/signout"), HttpPost("~/signout")]
-        public async Task SignOut()
-        {
-            // Instruct the cookies middleware to delete the local cookie created when the user agent
-            // is redirected from the identity provider after a successful authorization flow.
-            await HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Instruct the OpenID Connect middleware to redirect the user agent to the identity provider to sign out.
-            await HttpContext.Authentication.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
-        }
+       
         // GET: /Account/Login
         [HttpGet]
         [AllowAnonymous]
@@ -123,8 +100,16 @@ namespace newoidc.Controllers
             return View();
         }
 
-        //
-        // POST: /Account/Register
+        // custom logout
+        [HttpGet]
+        [Route("api/account/logout")]
+        public async Task<string> LogOut()
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation(4, "User logged out.");
+            return "{done:success}";
+        }
+        // custom register
         [Route("api/account/register")]
         [HttpPost]
         [AllowAnonymous]
@@ -134,6 +119,8 @@ namespace newoidc.Controllers
             var result = await _userManager.CreateAsync(user, dto.Password);
             return result;
         }
+
+        //custom external access use anything solid rather than 123456
         [Route("api/account/externalAccess")]
         [AllowAnonymous]
         [HttpGet]
@@ -188,14 +175,7 @@ namespace newoidc.Controllers
         }
 
         // POST: /Account/LogOff
-        [HttpGet]
-        [Route("api/account/logout")]
-        public async Task<string> LogOut()
-        {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation(4, "User logged out.");
-            return "done";
-        }
+    
         //
 
         // POST: /Account/ExternalLogin

@@ -26,20 +26,7 @@ namespace newoidc.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
-        private static bool _databaseChecked;
-        // The following code creates the database and schema if they don't exist.
-        // This is a temporary workaround since deploying database through EF migrations is
-        // not yet supported in this release.
-        // Please see this http://go.microsoft.com/fwlink/?LinkID=615859 for more information on how to do deploy the database
-        // when publishing your application.
-        public void EnsureDatabaseCreated()
-        {
-            if (!_databaseChecked)
-            {
-                _databaseChecked = true;
-                this.Database.EnsureCreated();
-            }
-        }
+       
     }
 
    

@@ -18,7 +18,7 @@ var packagesToMove = [
    paths.npmSrc + '/jquery/dist/jquery.min.js',
    paths.npmSrc + '/angular2localization/bundles/*.js',
     paths.npmSrc + '/angular2-jwt/angular2-jwt.js',
-        paths.npmSrc + '/ng2-bs3-modal/ng2-bs3-modal.js'
+        paths.npmSrc + '/ng2-bs3-modal/**/*.js'
 ];
 
 gulp.task('clean', function () {

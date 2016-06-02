@@ -1,22 +1,19 @@
-﻿import {Component } from '@angular/core'
-
-import {JwtHelper} from 'angular2-jwt'
-
-declare var System;
+﻿/*
+This class simply takes new token from the server and saves it in localstorage for further usage
+*/
+import {Component } from '@angular/core'
 @Component({
     selector: 'authorize',
-    template: 'Successfully authorized',
+    template: '<h3>Successfully authorized </h3><h4>Loading ...</h4>',
     directives: []
 })
-
 export class extauthorizeComponent {
-    constructor(public jwtHelper: JwtHelper) {
+    constructor() {
+        //get id token from urls part 
         var x =  location.hash;
-       // alert(x);
-        x.replace("#id_token=", "");
-        localStorage.setItem("auth_key", x);
-       // alert(JSON.stringify(this.jwtHelper.decodeToken(x)));
-       // window.close();
+        var extToken = x.replace("#id_token=", "");
+        //save into localstorage
+       localStorage.setItem("auth_key", extToken);
     }
    
    

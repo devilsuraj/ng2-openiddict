@@ -1,27 +1,31 @@
-﻿import {Component, ViewChild } from '@angular/core'
+﻿import {Component, ViewChild,Input } from '@angular/core'
 import {Http, Headers} from '@angular/http';
 import {JwtHelper, AuthHttp, AuthConfig, AUTH_PROVIDERS} from 'angular2-jwt'
 import {Router} from '@angular/router-deprecated';
+import {authervice} from './authoriza-service';
 import { MODAL_DIRECTIVES, ModalComponent  } from 'ng2-bs3-modal/ng2-bs3-modal';
 declare var System;
 @Component({
     selector: 'authorize',
     templateUrl: './app/authorize/authorize-component.html',
-    directives: [MODAL_DIRECTIVES]
+    directives: [MODAL_DIRECTIVES],
+    providers: []
 })
 
 export class authorizeComponent{
-    constructor(public jwtHelper: JwtHelper, private _http: Http, private _parentRouter: Router) {
-       // System.import('/js/site.js');
+    constructor(public jwtHelper: JwtHelper, private _http: Http, private _parentRouter: Router,private authentication:authervice) {
+       
     }
+
+    //@Input('log') log: boolean;
     @ViewChild('myModal')
     modal: ModalComponent;
 
-    mclose() {
+    public mclose() {
         this.modal.close();
     }
 
-    mopen() {
+   public mopen() {
         this.modal.open();
     }
     public token: any = "";
@@ -33,25 +37,42 @@ export class authorizeComponent{
     public pros: extprovider;
     public login: boolean;
     public register: boolean;
+    public user: string;
     public loss: boolean;
     public externals: string;
+    public authdata: any;
     public hodeModel: boolean = false;
-  //  public instance;
     ngOnInit() {
-       // this.getexternals();
-       // this.getapi();
-        if (localStorage.getItem('auth_key')) {
-            this._parentRouter.navigate(['/Dashboard']);
-        }
        
+     
+         // check if auth key is present
+        if (localStorage.getItem('auth_key')) {
+            this.token = this.jwtHelper.decodeToken(localStorage.getItem("auth_key"));
+           // this.authdata = localStorage.getItem('auth_key');
+            if (!this.jwtHelper.isTokenExpired(localStorage.getItem('auth_key'))) // check if its not expired
+            {
+                this._parentRouter.navigate(['/Dashboard']); this.isLoggedin = true; // redirect from login page
+            }
+            else
+            {
+                if (localStorage.getItem('refresh_key')) { // check if refresh key is present it wont be present for external logged in users
+                    this.refreshLogin(); // renew auth key and redirect
+                }
+            }
+
+        } // logic to redirect user if already logged in
+        this.isLoggedin = false;
         this.model = new logModel();
         this.rmodel = new registerModel();
         this.pros = new extprovider();
+        // below logic is for my login form snippet  to view login/register/loss password etc
         this.logMsg = "Type your credentials.";
         this.login = true;
         this.loss = false;
         this.register = false;
+        //end of logic
     }
+    // below logic is for my login form snippet to view login/register/loss password etc
     public callLogin() {
         this.login = true;
         this.register = false;
@@ -67,136 +88,87 @@ export class authorizeComponent{
         this.register = true;
         this.loss = false;
     }
+    // end
 
-    public Login() {
-        this.isLoggedin = false;
-        var headers = new Headers();
-        var creds = "grant_type=password"
-            + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + this.model.username + '&password=' + this.model.password;
-        headers.append('Content-Type', 'application/X-www-form-urlencoded');
-        return new Promise((resolve) => {
-            this._http.post('http://localhost:58056/connect/token', creds, { headers: headers }).subscribe((data) => {
-                if (data.json().access_token) {
-                    alert(JSON.stringify(this.token));
-                    this.token = data.json().access_token
-                    alert(JSON.stringify(this.jwtHelper.decodeToken(this.token)));
-                    this.logMsg = "You are logged In Now , Please Wait ....";
-                  //  localStorage.setItem("authorizationData", data.json().access_token);
-                    localStorage.setItem("auth_key", data.json().access_token);
-                    this.isLoggedin = true;
-                    this.mclose();
-                    // dialog.dismiss();
-                    this._parentRouter.parent.navigate(['/Dashboard']);
-                }
-                else {
-                    this.logMsg = "Invalid username or password";
-                }
-                resolve(this.isLoggedin)
-            },error=>this.logMsg= error.json().error_description
-            )
-        })
+
+    public Login(creds: logModel) {
+        this.authentication.Login(creds)
+            .subscribe(
+            Ttoken => {
+                this.logMsg = "You are logged In Now , Please Wait ....";
+                localStorage.setItem("auth_key", Ttoken.access_token);
+                localStorage.setItem("refresh_key", Ttoken.refresh_token);
+                this.isLoggedin = true;
+                this.mclose();
+                this._parentRouter.navigate(['/Dashboard']);
+            },
+            Error => {
+                this.logMsg = Error.error_description
+            })
+        
     }
 
+    public refreshLogin() {
+        this.authentication.refreshLogin()
+            .subscribe(
+            Ttoken => {
+                this.logMsg = "You are logged In Now , Please Wait ....";
+                localStorage.setItem("auth_key", Ttoken.access_token);
+                localStorage.setItem("refresh_key", Ttoken.refresh_token);
+                this.isLoggedin = true;
+                this.mclose();
+                this._parentRouter.navigate(['/Dashboard']);
+            },
+            Error => {
+                this.logMsg = Error.error_description
+            })
 
+    }
+
+    //open a popup for external login and set a interval function [API in Account Controller]
     public extLogin(provider: string) {
         var instance = this;
-        var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400');
+        var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider='+provider, '_blank', 'width=500, height=400');
         setInterval(function () {
             if (localStorage.getItem('auth_key')) {
-                popup_window.close();
+                popup_window.close();//close external login popup
                 instance.mclose();
-                instance._parentRouter.parent.navigate(['/Dashboard']);
-            
-            } }, 3000);
-       
-    }
-
-    public getapi() {
-        this.isLoggedin = false;
-        var headers = new Headers();
-        //  var creds = "grant_type=password"
-        //      + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + "d@d.d" + '&password=' + "Polardevil#1";
-        headers.append("Authorization", "Bearer " + "CfDJ8D4ST5ObdZdBt5Xa8O7w3OrXIgeVGcDtHrC09JvKkdP7jkJaXrf9ttEL8Eaq33rhBYKs8ZKSboFvtnRcoSroDkzMt34r93Jv9t2PtL3avXprnRwwsWrPEPO73PGCCSeNLotPP+X0knRneiqFhJV994c1ECW2SuEA3RUiQkuC46k1IVsKGLz374BOR7YGNHB6+NpaS4WPmKi7za/m98BzXperOHBuqKgc73tCkRpSPJARAGl/OKQn/LRUf3PaSOIwaQ==");
-        return new Promise((resolve) => {
-            this._http.get('http://localhost:58056/api/test',{ headers: headers }).subscribe((data) => {
-                alert(JSON.stringify(data.json()));
-                // resolve(this.isLoggedin)
-            }
-            )
-        })
+                this.isLoggedin = true;// close login box
+                instance._parentRouter.navigate(['/Dashboard']);// navigate to dashboard, we can use returnurls too
+            } }, 3000); //Check if the user has finished external login process after each 3 seconds.
     }
 
 
-    public getexternals() {
-        this.isLoggedin = false;
-        var headers = new Headers();
-        //  var creds = "grant_type=password"
-        //      + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + "d@d.d" + '&password=' + "Polardevil#1";
-       // headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
-        return new Promise((resolve) => {
-            this._http.get('http://localhost:58056/api/Account/externalAccess?returnUrl=%2F&generateState=true').subscribe((data) => {
-             this.externals=JSON.stringify(data.json());
-                // resolve(this.isLoggedin)
-            }
-            )
-        })
-    }
-
-    /*  private store(key: string, value: any) {
-          this.storage.setItem(key, JSON.stringify(value));
-      }*/
     public Logout() {
-        console.log("Do logout logic");
-        //this.securityService.Logoff();
+        this.authentication.logout().subscribe(data => {
+            localStorage.removeItem("auth_key");
+            localStorage.removeItem("refresh_key");
+            this._parentRouter.navigate(['/Default']);
+            this.isLoggedin = false;
+        }, error => { this.logMsg = error });
     }
-    public userRegister() {
-        this.isLoggedin = false;
-       // this.rmodel.returnUrl = "http://localhost:58056/connect/token";
-        var headers = new Headers();
-        var creds = JSON.stringify(this.rmodel);
-        headers.append('Content-Type', 'application/json');
-        return new Promise((resolve) => {
-            this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe((data) => {
-                if (data.json().Succeeded) {
-                    //get new token
-                   // alert('calling login');
-                    var headerss = new Headers();
-                    var credss = "grant_type=password"
-                        + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + this.rmodel.Email + '&password=' + this.rmodel.Password;
-                    headerss.append('Content-Type', 'application/X-www-form-urlencoded');
-                    return new Promise((resolve) => {
-                        this._http.post('http://localhost:58056/connect/token', credss, { headers: headerss }).subscribe((data2) => {
-                           // alert('calling done');
-                          //  alert(data2.json().access_token);
-                            if (data2.json().access_token) {
-                                this.token = data2.json().access_token
-                                this.logMsg = "You are logged In Now , Please Wait ....";
-                               // localStorage.setItem("authorizationData", data2.json().access_token);
-                                localStorage.setItem("auth_key", data2.json().access_token);
-                                this.isLoggedin = true;
-                                this.mclose();
-                                // dialog.dismiss();
-                                this._parentRouter.parent.navigate(['/Dashboard']);
-                            }
-                            else {
-                                this.logMsg = "Invalid username or password";
-                            }
-                            resolve(this.isLoggedin)
-                        }, error => this.logMsg = error.json().error_description
-                        )
-                    })
-                    //end of token
+
+    public userRegister(creds:registerModel) {
+        this.authentication.Register(creds)
+            .subscribe(
+            Ttoken => {
+                if (Ttoken.Succeeded) {
+                    this.model.username = creds.Email;
+                    this.model.password = creds.Password;
+                    this.Login(this.model);
                 }
-                else {
-                   // this.logMsg = "Invalid username or password";
-                    this.logMsg = data.json().Errors[0].Description
+                else
+                {
+                    this.logMsg = Ttoken.Errors[0].Description
                 }
-                resolve(this.isLoggedin)
-            }, error => this.logMsg = error.json().Errors[0].Description
-            )
-        })
+            },
+            Error => {
+                this.logMsg = Error.Errors[0].Description
+            });
     }
-}
+    }
+
+
 export class logModel {
     public username: string;
     public password: string;
@@ -211,5 +183,15 @@ export class registerModel {
     public Email: string;
     public Password: string;
     public ConfirmPassword: string;
-   // public returnUrl: string;
+}
+export class token {
+    public access_token: string;
+    public expires_in: string;
+    public refresh_token: string;
+    public token_type: string;
+}
+export class Regresult {
+    public Succeeded: string;
+    public Errors: any[];
+   
 }

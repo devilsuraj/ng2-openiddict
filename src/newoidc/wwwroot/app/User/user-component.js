@@ -1,4 +1,4 @@
-System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/router-deprecated'], function(exports_1, context_1) {
+System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/router-deprecated', '../authorize/authoriza-service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, angular2_jwt_1, http_1, router_deprecated_1;
+    var core_1, angular2_jwt_1, http_1, router_deprecated_1, authoriza_service_1;
     var userComponent;
     return {
         setters:[
@@ -25,13 +25,17 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
             },
             function (router_deprecated_1_1) {
                 router_deprecated_1 = router_deprecated_1_1;
+            },
+            function (authoriza_service_1_1) {
+                authoriza_service_1 = authoriza_service_1_1;
             }],
         execute: function() {
             userComponent = (function () {
-                function userComponent(jwtHelper, _http, _parentRouter) {
+                function userComponent(jwtHelper, _http, _parentRouter, Authentication) {
                     this.jwtHelper = jwtHelper;
                     this._http = _http;
                     this._parentRouter = _parentRouter;
+                    this.Authentication = Authentication;
                     this.payload = "loading ...";
                 }
                 userComponent.prototype.ngOnInit = function () {
@@ -39,30 +43,23 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
                 };
                 userComponent.prototype.getapi = function () {
                     var _this = this;
-                    var headers = new http_1.Headers();
-                    headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
-                    return new Promise(function (resolve) {
-                        _this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe(function (data) {
-                            _this.payload = JSON.stringify(data.json());
-                        });
-                    });
+                    this.Authentication.getUserInfo().subscribe(function (data) { _this.payload = JSON.stringify(data); }, function (error) { _this.payload = error; });
                 };
                 userComponent.prototype.Logout = function () {
                     var _this = this;
-                    var headers = new http_1.Headers();
-                    headers.append("Authorization", "Bearer " + localStorage.getItem("authorizationData"));
-                    this._http.get('http://localhost:58056/api/account/logout', { headers: headers }).subscribe(function (data) {
+                    this.Authentication.logout().subscribe(function (data) {
                         localStorage.removeItem("auth_key");
+                        localStorage.removeItem("refresh_key");
                         _this._parentRouter.parent.navigate(['/Default']);
-                    });
+                    }, function (error) { _this.payload = error; });
                 };
                 userComponent = __decorate([
                     core_1.Component({
                         selector: 'authorize',
                         template: "<h1>You are logged in</h1> <h3>{{payload}}</h3><hr/>\n<button (click)='Logout()' class='btn btn-large'>Logout</button>\n",
-                        providers: [angular2_jwt_1.JwtHelper]
+                        providers: []
                     }), 
-                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_1.Router])
+                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_1.Router, authoriza_service_1.authervice])
                 ], userComponent);
                 return userComponent;
             }());

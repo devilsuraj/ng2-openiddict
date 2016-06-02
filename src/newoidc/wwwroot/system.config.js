@@ -4,6 +4,7 @@
     var map = {
         'app': 'app', // 'dist'
         'rxjs': 'libs/rxjs',
+        'rxjs/add/operator/*': 'libs/rxjs/add/operator/*',
         '@angular': 'libs/@angular',
         'angular2-jwt': 'libs/angular2-jwt/angular2-jwt.js',
         'ng2-bs3-modal': 'libs/ng2-bs3-modal'

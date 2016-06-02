@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/router-deprecated', 'ng2-bs3-modal/ng2-bs3-modal'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/router-deprecated', './authoriza-service', 'ng2-bs3-modal/ng2-bs3-modal'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,8 +10,8 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, http_1, angular2_jwt_1, router_deprecated_1, ng2_bs3_modal_1;
-    var authorizeComponent, logModel, extprovider, registerModel;
+    var core_1, http_1, angular2_jwt_1, router_deprecated_1, authoriza_service_1, ng2_bs3_modal_1;
+    var authorizeComponent, logModel, extprovider, registerModel, token, Regresult;
     return {
         setters:[
             function (core_1_1) {
@@ -26,15 +26,19 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
             function (router_deprecated_1_1) {
                 router_deprecated_1 = router_deprecated_1_1;
             },
+            function (authoriza_service_1_1) {
+                authoriza_service_1 = authoriza_service_1_1;
+            },
             function (ng2_bs3_modal_1_1) {
                 ng2_bs3_modal_1 = ng2_bs3_modal_1_1;
             }],
         execute: function() {
             authorizeComponent = (function () {
-                function authorizeComponent(jwtHelper, _http, _parentRouter) {
+                function authorizeComponent(jwtHelper, _http, _parentRouter, authentication) {
                     this.jwtHelper = jwtHelper;
                     this._http = _http;
                     this._parentRouter = _parentRouter;
+                    this.authentication = authentication;
                     this.token = "";
                     this.detoken = "";
                     this.hodeModel = false;
@@ -47,8 +51,18 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 };
                 authorizeComponent.prototype.ngOnInit = function () {
                     if (localStorage.getItem('auth_key')) {
-                        this._parentRouter.navigate(['/Dashboard']);
+                        this.token = this.jwtHelper.decodeToken(localStorage.getItem("auth_key"));
+                        if (!this.jwtHelper.isTokenExpired(localStorage.getItem('auth_key'))) {
+                            this._parentRouter.navigate(['/Dashboard']);
+                            this.isLoggedin = true;
+                        }
+                        else {
+                            if (localStorage.getItem('refresh_key')) {
+                                this.refreshLogin();
+                            }
+                        }
                     }
+                    this.isLoggedin = false;
                     this.model = new logModel();
                     this.rmodel = new registerModel();
                     this.pros = new extprovider();
@@ -72,102 +86,69 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     this.register = true;
                     this.loss = false;
                 };
-                authorizeComponent.prototype.Login = function () {
+                authorizeComponent.prototype.Login = function (creds) {
                     var _this = this;
-                    this.isLoggedin = false;
-                    var headers = new http_1.Headers();
-                    var creds = "grant_type=password"
-                        + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + this.model.username + '&password=' + this.model.password;
-                    headers.append('Content-Type', 'application/X-www-form-urlencoded');
-                    return new Promise(function (resolve) {
-                        _this._http.post('http://localhost:58056/connect/token', creds, { headers: headers }).subscribe(function (data) {
-                            if (data.json().access_token) {
-                                alert(JSON.stringify(_this.token));
-                                _this.token = data.json().access_token;
-                                alert(JSON.stringify(_this.jwtHelper.decodeToken(_this.token)));
-                                _this.logMsg = "You are logged In Now , Please Wait ....";
-                                localStorage.setItem("auth_key", data.json().access_token);
-                                _this.isLoggedin = true;
-                                _this.mclose();
-                                _this._parentRouter.parent.navigate(['/Dashboard']);
-                            }
-                            else {
-                                _this.logMsg = "Invalid username or password";
-                            }
-                            resolve(_this.isLoggedin);
-                        }, function (error) { return _this.logMsg = error.json().error_description; });
+                    this.authentication.Login(creds)
+                        .subscribe(function (Ttoken) {
+                        _this.logMsg = "You are logged In Now , Please Wait ....";
+                        localStorage.setItem("auth_key", Ttoken.access_token);
+                        localStorage.setItem("refresh_key", Ttoken.refresh_token);
+                        _this.isLoggedin = true;
+                        _this.mclose();
+                        _this._parentRouter.navigate(['/Dashboard']);
+                    }, function (Error) {
+                        _this.logMsg = Error.error_description;
+                    });
+                };
+                authorizeComponent.prototype.refreshLogin = function () {
+                    var _this = this;
+                    this.authentication.refreshLogin()
+                        .subscribe(function (Ttoken) {
+                        _this.logMsg = "You are logged In Now , Please Wait ....";
+                        localStorage.setItem("auth_key", Ttoken.access_token);
+                        localStorage.setItem("refresh_key", Ttoken.refresh_token);
+                        _this.isLoggedin = true;
+                        _this.mclose();
+                        _this._parentRouter.navigate(['/Dashboard']);
+                    }, function (Error) {
+                        _this.logMsg = Error.error_description;
                     });
                 };
                 authorizeComponent.prototype.extLogin = function (provider) {
                     var instance = this;
-                    var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider=Google', '_blank', 'width=500, height=400');
+                    var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider=' + provider, '_blank', 'width=500, height=400');
                     setInterval(function () {
                         if (localStorage.getItem('auth_key')) {
                             popup_window.close();
                             instance.mclose();
-                            instance._parentRouter.parent.navigate(['/Dashboard']);
+                            this.isLoggedin = true;
+                            instance._parentRouter.navigate(['/Dashboard']);
                         }
                     }, 3000);
                 };
-                authorizeComponent.prototype.getapi = function () {
-                    var _this = this;
-                    this.isLoggedin = false;
-                    var headers = new http_1.Headers();
-                    headers.append("Authorization", "Bearer " + "CfDJ8D4ST5ObdZdBt5Xa8O7w3OrXIgeVGcDtHrC09JvKkdP7jkJaXrf9ttEL8Eaq33rhBYKs8ZKSboFvtnRcoSroDkzMt34r93Jv9t2PtL3avXprnRwwsWrPEPO73PGCCSeNLotPP+X0knRneiqFhJV994c1ECW2SuEA3RUiQkuC46k1IVsKGLz374BOR7YGNHB6+NpaS4WPmKi7za/m98BzXperOHBuqKgc73tCkRpSPJARAGl/OKQn/LRUf3PaSOIwaQ==");
-                    return new Promise(function (resolve) {
-                        _this._http.get('http://localhost:58056/api/test', { headers: headers }).subscribe(function (data) {
-                            alert(JSON.stringify(data.json()));
-                        });
-                    });
-                };
-                authorizeComponent.prototype.getexternals = function () {
-                    var _this = this;
-                    this.isLoggedin = false;
-                    var headers = new http_1.Headers();
-                    return new Promise(function (resolve) {
-                        _this._http.get('http://localhost:58056/api/Account/externalAccess?returnUrl=%2F&generateState=true').subscribe(function (data) {
-                            _this.externals = JSON.stringify(data.json());
-                        });
-                    });
-                };
                 authorizeComponent.prototype.Logout = function () {
-                    console.log("Do logout logic");
-                };
-                authorizeComponent.prototype.userRegister = function () {
                     var _this = this;
-                    this.isLoggedin = false;
-                    var headers = new http_1.Headers();
-                    var creds = JSON.stringify(this.rmodel);
-                    headers.append('Content-Type', 'application/json');
-                    return new Promise(function (resolve) {
-                        _this._http.post('http://localhost:58056/api/account/register', creds, { headers: headers }).subscribe(function (data) {
-                            if (data.json().Succeeded) {
-                                var headerss = new http_1.Headers();
-                                var credss = "grant_type=password"
-                                    + "&responseType=token,&scope=offline_access profile email roles" + '&username=' + _this.rmodel.Email + '&password=' + _this.rmodel.Password;
-                                headerss.append('Content-Type', 'application/X-www-form-urlencoded');
-                                return new Promise(function (resolve) {
-                                    _this._http.post('http://localhost:58056/connect/token', credss, { headers: headerss }).subscribe(function (data2) {
-                                        if (data2.json().access_token) {
-                                            _this.token = data2.json().access_token;
-                                            _this.logMsg = "You are logged In Now , Please Wait ....";
-                                            localStorage.setItem("auth_key", data2.json().access_token);
-                                            _this.isLoggedin = true;
-                                            _this.mclose();
-                                            _this._parentRouter.parent.navigate(['/Dashboard']);
-                                        }
-                                        else {
-                                            _this.logMsg = "Invalid username or password";
-                                        }
-                                        resolve(_this.isLoggedin);
-                                    }, function (error) { return _this.logMsg = error.json().error_description; });
-                                });
-                            }
-                            else {
-                                _this.logMsg = data.json().Errors[0].Description;
-                            }
-                            resolve(_this.isLoggedin);
-                        }, function (error) { return _this.logMsg = error.json().Errors[0].Description; });
+                    this.authentication.logout().subscribe(function (data) {
+                        localStorage.removeItem("auth_key");
+                        localStorage.removeItem("refresh_key");
+                        _this._parentRouter.navigate(['/Default']);
+                        _this.isLoggedin = false;
+                    }, function (error) { _this.logMsg = error; });
+                };
+                authorizeComponent.prototype.userRegister = function (creds) {
+                    var _this = this;
+                    this.authentication.Register(creds)
+                        .subscribe(function (Ttoken) {
+                        if (Ttoken.Succeeded) {
+                            _this.model.username = creds.Email;
+                            _this.model.password = creds.Password;
+                            _this.Login(_this.model);
+                        }
+                        else {
+                            _this.logMsg = Ttoken.Errors[0].Description;
+                        }
+                    }, function (Error) {
+                        _this.logMsg = Error.Errors[0].Description;
                     });
                 };
                 __decorate([
@@ -178,9 +159,10 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     core_1.Component({
                         selector: 'authorize',
                         templateUrl: './app/authorize/authorize-component.html',
-                        directives: [ng2_bs3_modal_1.MODAL_DIRECTIVES]
+                        directives: [ng2_bs3_modal_1.MODAL_DIRECTIVES],
+                        providers: []
                     }), 
-                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_1.Router])
+                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_1.Router, authoriza_service_1.authervice])
                 ], authorizeComponent);
                 return authorizeComponent;
             }());
@@ -203,6 +185,18 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 return registerModel;
             }());
             exports_1("registerModel", registerModel);
+            token = (function () {
+                function token() {
+                }
+                return token;
+            }());
+            exports_1("token", token);
+            Regresult = (function () {
+                function Regresult() {
+                }
+                return Regresult;
+            }());
+            exports_1("Regresult", Regresult);
         }
     }
 });

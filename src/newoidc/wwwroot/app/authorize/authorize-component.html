@@ -1,6 +1,10 @@
-﻿<div class="row"><h3 class="text-center">You are not logged in please </h3> 
-    <p class="text-center"><button class="btn btn-primary btn-lg" role="button" (click)="mopen()"> Login </button></p>
-</div>
+﻿<ul [hidden]="isloggedin" class="nav navbar-nav navbar-right">
+    <li><button class="btn btn-link" (click)="mopen()">Login</button></li>
+</ul>
+<ul [hidden]="!isloggedin" class="nav navbar-nav navbar-right">
+    <li><button class="btn btn-link">Welcome {{token.unique_name}}</button></li>
+    <li><button class="btn btn-link" (click)="Logout()">Logout</button></li>
+</ul>
 <modal #myModal  id="login-modal" [hidden]="hodeModal" tabindex="-1" role="dialog"  style="display: none;">
     
     <modal-header>
@@ -29,7 +33,7 @@
             </div>
             <div class="modal-footer">
                 <div>
-                    <button type="submit" (click)="Login()" class="btn btn-primary btn-lg btn-block">Login</button>
+                    <button type="submit" (click)="Login(model)" class="btn btn-primary btn-lg btn-block">Login</button>
                     <p>Login Via</p>
                     <button type="submit" (click)="extLogin('Google')" class="btn btn-primary btn-lg btn-block "> Google</button>
                     <button type="submit" (click)="extLogin('Facebook')" class="btn btn-primary btn-lg btn-block glyphicon glyphicon-chevron-right"> Facebook</button>
@@ -68,7 +72,7 @@
             </div>
             <div class="modal-footer">
                 <div>
-                    <button type="submit" (click)="userRegister()" class="btn btn-primary btn-lg btn-block">Register</button>
+                    <button type="submit" (click)="userRegister(rmodel)" class="btn btn-primary btn-lg btn-block">Register</button>
                 </div>
              
             </div>

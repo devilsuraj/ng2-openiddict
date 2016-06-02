@@ -47,22 +47,24 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
                     this._parentRouter = _parentRouter;
                 }
                 AppComponent.prototype.authcheck = function () {
-                    if (!localStorage.getItem('auth_key')) {
-                        this._parentRouter.navigate(['/Login']);
-                    }
-                    else {
+                    if (localStorage.getItem('auth_key') && !this.jwtHelper.isTokenExpired(localStorage.getItem('auth_key'))) {
                         this._parentRouter.navigate(['/Dashboard']);
                     }
+                    else {
+                        this.authorizeComponentRefer.mopen();
+                    }
                 };
+                __decorate([
+                    core_1.ViewChild(authorize_component_1.authorizeComponent), 
+                    __metadata('design:type', authorize_component_1.authorizeComponent)
+                ], AppComponent.prototype, "authorizeComponentRefer", void 0);
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'my-app',
                         templateUrl: 'app/app.component.html',
-                        directives: [router_deprecated_1.ROUTER_DIRECTIVES],
+                        directives: [router_deprecated_1.ROUTER_DIRECTIVES, authorize_component_1.authorizeComponent],
                         providers: [
                             router_deprecated_1.ROUTER_PROVIDERS,
-                            angular2_jwt_1.AUTH_PROVIDERS,
-                            angular2_jwt_1.JwtHelper
                         ]
                     }),
                     router_deprecated_1.RouteConfig([
