@@ -7,13 +7,14 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class authervice {
     constructor(private http: Http, private app: Configuration) { }
+  
     private _authUrl = this.app.Server;  // URL to web api
     private headers = new Headers({ 'Content-Type': 'application/X-www-form-urlencoded' });
     private jheaders = new Headers({ 'Content-Type': 'application/json' });
-    private authheaders = new Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key")});
+    private authheaders;
     private options = new RequestOptions({ headers: this.headers });
     private joptions = new RequestOptions({ headers: this.jheaders });
-    private Authoptions = new RequestOptions({ headers: this.authheaders });
+    private Authoptions;// = new RequestOptions({ headers: this.authheaders });
     private tokenParams = "grant_type=password" + // password type reuqets with credentials read more on grant_types
                           "&resource="+ this.app.Server +"/"+ // audience url . read more on docs /blog
                           "&responseType=token" + // get token 
@@ -25,15 +26,23 @@ export class authervice {
                            
 
     getUserInfo() {
-        return this.http.get(this._authUrl+"/api/test",this.Authoptions)
-            .map(res => res.json())
-            .catch(this.handleError);
+        if (localStorage.getItem("auth_key")) {
+            this.authheaders = new Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key") });
+              this.Authoptions = new RequestOptions({ headers: this.authheaders });
+            return this.http.get(this._authUrl + "/api/test", this.Authoptions)
+                .map(res => res.json())
+                .catch(this.handleError);
+        }
     }
 
     logout() {
-        return this.http.get(this._authUrl + "/api/account/logout", this.Authoptions)
-            .map(res => res)
-            .catch(this.handleError);
+        if (localStorage.getItem("auth_key")) {
+            this.authheaders = new Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key") });
+              this.Authoptions = new RequestOptions({ headers: this.authheaders });
+            return this.http.get(this._authUrl + "/api/account/logout", this.Authoptions)
+                .map(res => res)
+                .catch(this.handleError);
+        }
     }
 
     Login(inputType: logModel): Observable<token> {

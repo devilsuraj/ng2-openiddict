@@ -35,10 +35,8 @@ System.register(['@angular/core', '@angular/http', '../app.constants', 'rxjs/Rx'
                     this._authUrl = this.app.Server;
                     this.headers = new http_1.Headers({ 'Content-Type': 'application/X-www-form-urlencoded' });
                     this.jheaders = new http_1.Headers({ 'Content-Type': 'application/json' });
-                    this.authheaders = new http_1.Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key") });
                     this.options = new http_1.RequestOptions({ headers: this.headers });
                     this.joptions = new http_1.RequestOptions({ headers: this.jheaders });
-                    this.Authoptions = new http_1.RequestOptions({ headers: this.authheaders });
                     this.tokenParams = "grant_type=password" +
                         "&resource=" + this.app.Server + "/" +
                         "&responseType=token" +
@@ -48,14 +46,22 @@ System.register(['@angular/core', '@angular/http', '../app.constants', 'rxjs/Rx'
                         "&refresh_token=" + localStorage.getItem("refresh_key");
                 }
                 authervice.prototype.getUserInfo = function () {
-                    return this.http.get(this._authUrl + "/api/test", this.Authoptions)
-                        .map(function (res) { return res.json(); })
-                        .catch(this.handleError);
+                    if (localStorage.getItem("auth_key")) {
+                        this.authheaders = new http_1.Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key") });
+                        this.Authoptions = new http_1.RequestOptions({ headers: this.authheaders });
+                        return this.http.get(this._authUrl + "/api/test", this.Authoptions)
+                            .map(function (res) { return res.json(); })
+                            .catch(this.handleError);
+                    }
                 };
                 authervice.prototype.logout = function () {
-                    return this.http.get(this._authUrl + "/api/account/logout", this.Authoptions)
-                        .map(function (res) { return res; })
-                        .catch(this.handleError);
+                    if (localStorage.getItem("auth_key")) {
+                        this.authheaders = new http_1.Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key") });
+                        this.Authoptions = new http_1.RequestOptions({ headers: this.authheaders });
+                        return this.http.get(this._authUrl + "/api/account/logout", this.Authoptions)
+                            .map(function (res) { return res; })
+                            .catch(this.handleError);
+                    }
                 };
                 authervice.prototype.Login = function (inputType) {
                     return this.http.post(this._authUrl + "/connect/token", this.tokenParams + "&username=" + inputType.username + "&password=" + inputType.password, this.options)

@@ -8,14 +8,14 @@ declare var System;
 @Component({
     selector: 'authorize',
     template: `<h1>You are logged in</h1> <h3>{{payload}}</h3><hr/>
-<button (click)='Logout()' class='btn btn-large'>Logout</button>
+
 `,
 
     providers: []
 })
 export class userComponent {
     private payload: string="loading ...";
-    constructor(public jwtHelper: JwtHelper, private _http: Http, private _parentRouter: Router, private Authentication: authervice) {
+    constructor(public jwtHelper: JwtHelper,  private _parentRouter: Router, private Authentication: authervice) {
      
     }
     ngOnInit() {

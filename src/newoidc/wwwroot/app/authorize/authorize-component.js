@@ -49,10 +49,15 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 authorizeComponent.prototype.mopen = function () {
                     this.modal.open();
                 };
+                authorizeComponent.prototype.logstatus = function () {
+                    this.isLoggedin = true;
+                };
                 authorizeComponent.prototype.ngOnInit = function () {
+                    var instance = this;
                     if (localStorage.getItem('auth_key')) {
                         this.token = this.jwtHelper.decodeToken(localStorage.getItem("auth_key"));
                         if (!this.jwtHelper.isTokenExpired(localStorage.getItem('auth_key'))) {
+                            instance.getUserFromServer();
                             this._parentRouter.navigate(['/Dashboard']);
                             this.isLoggedin = true;
                         }
@@ -62,7 +67,6 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                             }
                         }
                     }
-                    this.isLoggedin = false;
                     this.model = new logModel();
                     this.rmodel = new registerModel();
                     this.pros = new extprovider();
@@ -88,12 +92,14 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 };
                 authorizeComponent.prototype.Login = function (creds) {
                     var _this = this;
+                    var instance = this;
                     this.authentication.Login(creds)
                         .subscribe(function (Ttoken) {
                         _this.logMsg = "You are logged In Now , Please Wait ....";
                         localStorage.setItem("auth_key", Ttoken.access_token);
                         localStorage.setItem("refresh_key", Ttoken.refresh_token);
                         _this.isLoggedin = true;
+                        instance.getUserFromServer();
                         _this.mclose();
                         _this._parentRouter.navigate(['/Dashboard']);
                     }, function (Error) {
@@ -102,16 +108,26 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                 };
                 authorizeComponent.prototype.refreshLogin = function () {
                     var _this = this;
+                    var instance = this;
                     this.authentication.refreshLogin()
                         .subscribe(function (Ttoken) {
                         _this.logMsg = "You are logged In Now , Please Wait ....";
                         localStorage.setItem("auth_key", Ttoken.access_token);
                         localStorage.setItem("refresh_key", Ttoken.refresh_token);
                         _this.isLoggedin = true;
+                        instance.getUserFromServer();
                         _this.mclose();
                         _this._parentRouter.navigate(['/Dashboard']);
                     }, function (Error) {
                         _this.logMsg = Error.error_description;
+                    });
+                };
+                authorizeComponent.prototype.getUserFromServer = function () {
+                    var _this = this;
+                    this.authentication.getUserInfo().subscribe(function (data) {
+                        _this.token = data;
+                    }, function (error) {
+                        _this.token = error;
                     });
                 };
                 authorizeComponent.prototype.extLogin = function (provider) {
@@ -119,8 +135,10 @@ System.register(['@angular/core', '@angular/http', 'angular2-jwt', '@angular/rou
                     var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider=' + provider, '_blank', 'width=500, height=400');
                     setInterval(function () {
                         if (localStorage.getItem('auth_key')) {
+                            this.clearInterval();
                             popup_window.close();
                             instance.mclose();
+                            instance.getUserFromServer();
                             this.isLoggedin = true;
                             instance._parentRouter.navigate(['/Dashboard']);
                         }

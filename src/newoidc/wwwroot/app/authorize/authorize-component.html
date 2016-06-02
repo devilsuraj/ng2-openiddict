@@ -1,8 +1,8 @@
-﻿<ul [hidden]="isloggedin" class="nav navbar-nav navbar-right">
+﻿<ul [hidden]="isLoggedin" class="nav navbar-nav navbar-right">
     <li><button class="btn btn-link" (click)="mopen()">Login</button></li>
 </ul>
-<ul [hidden]="!isloggedin" class="nav navbar-nav navbar-right">
-    <li><button class="btn btn-link">Welcome {{token.unique_name}}</button></li>
+<ul [hidden]="!isLoggedin" class="nav navbar-nav navbar-right">
+    <li><button class="btn btn-link">Welcome {{token.unique_name}} {{token.UserName}}</button></li>
     <li><button class="btn btn-link" (click)="Logout()">Logout</button></li>
 </ul>
 <modal #myModal  id="login-modal" [hidden]="hodeModal" tabindex="-1" role="dialog"  style="display: none;">

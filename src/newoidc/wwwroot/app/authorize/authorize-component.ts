@@ -28,6 +28,10 @@ export class authorizeComponent{
    public mopen() {
         this.modal.open();
     }
+
+   public logstatus() {
+       this.isLoggedin = true; 
+   }
     public token: any = "";
     public detoken: any = "";
     public isLoggedin: boolean;
@@ -44,14 +48,16 @@ export class authorizeComponent{
     public hodeModel: boolean = false;
     ngOnInit() {
        
-     
+        var instance = this;
          // check if auth key is present
         if (localStorage.getItem('auth_key')) {
             this.token = this.jwtHelper.decodeToken(localStorage.getItem("auth_key"));
            // this.authdata = localStorage.getItem('auth_key');
             if (!this.jwtHelper.isTokenExpired(localStorage.getItem('auth_key'))) // check if its not expired
             {
-                this._parentRouter.navigate(['/Dashboard']); this.isLoggedin = true; // redirect from login page
+                instance.getUserFromServer();
+                this._parentRouter.navigate(['/Dashboard']);
+                this.isLoggedin = true; // redirect from login page
             }
             else
             {
@@ -61,7 +67,7 @@ export class authorizeComponent{
             }
 
         } // logic to redirect user if already logged in
-        this.isLoggedin = false;
+       // this.isLoggedin = false;
         this.model = new logModel();
         this.rmodel = new registerModel();
         this.pros = new extprovider();
@@ -92,6 +98,7 @@ export class authorizeComponent{
 
 
     public Login(creds: logModel) {
+        var instance = this;
         this.authentication.Login(creds)
             .subscribe(
             Ttoken => {
@@ -99,6 +106,7 @@ export class authorizeComponent{
                 localStorage.setItem("auth_key", Ttoken.access_token);
                 localStorage.setItem("refresh_key", Ttoken.refresh_token);
                 this.isLoggedin = true;
+                instance.getUserFromServer();
                 this.mclose();
                 this._parentRouter.navigate(['/Dashboard']);
             },
@@ -109,6 +117,7 @@ export class authorizeComponent{
     }
 
     public refreshLogin() {
+    var instance = this;
         this.authentication.refreshLogin()
             .subscribe(
             Ttoken => {
@@ -116,6 +125,7 @@ export class authorizeComponent{
                 localStorage.setItem("auth_key", Ttoken.access_token);
                 localStorage.setItem("refresh_key", Ttoken.refresh_token);
                 this.isLoggedin = true;
+                instance.getUserFromServer();
                 this.mclose();
                 this._parentRouter.navigate(['/Dashboard']);
             },
@@ -124,15 +134,24 @@ export class authorizeComponent{
             })
 
     }
-
+    public getUserFromServer() {
+        this.authentication.getUserInfo().subscribe(data => {
+            this.token = data;
+        },
+            error => {
+                this.token = error;
+            });
+    }
     //open a popup for external login and set a interval function [API in Account Controller]
     public extLogin(provider: string) {
         var instance = this;
         var popup_window = window.open('http://localhost:58056/api/account/externalaccess?provider='+provider, '_blank', 'width=500, height=400');
         setInterval(function () {
             if (localStorage.getItem('auth_key')) {
+                this.clearInterval();
                 popup_window.close();//close external login popup
                 instance.mclose();
+                instance.getUserFromServer();
                 this.isLoggedin = true;// close login box
                 instance._parentRouter.navigate(['/Dashboard']);// navigate to dashboard, we can use returnurls too
             } }, 3000); //Check if the user has finished external login process after each 3 seconds.

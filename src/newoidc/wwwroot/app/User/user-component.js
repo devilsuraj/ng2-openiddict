@@ -1,4 +1,4 @@
-System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/router-deprecated', '../authorize/authoriza-service'], function(exports_1, context_1) {
+System.register(['@angular/core', 'angular2-jwt', '@angular/router-deprecated', '../authorize/authoriza-service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, angular2_jwt_1, http_1, router_deprecated_1, authoriza_service_1;
+    var core_1, angular2_jwt_1, router_deprecated_1, authoriza_service_1;
     var userComponent;
     return {
         setters:[
@@ -20,9 +20,6 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
             function (angular2_jwt_1_1) {
                 angular2_jwt_1 = angular2_jwt_1_1;
             },
-            function (http_1_1) {
-                http_1 = http_1_1;
-            },
             function (router_deprecated_1_1) {
                 router_deprecated_1 = router_deprecated_1_1;
             },
@@ -31,9 +28,8 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
             }],
         execute: function() {
             userComponent = (function () {
-                function userComponent(jwtHelper, _http, _parentRouter, Authentication) {
+                function userComponent(jwtHelper, _parentRouter, Authentication) {
                     this.jwtHelper = jwtHelper;
-                    this._http = _http;
                     this._parentRouter = _parentRouter;
                     this.Authentication = Authentication;
                     this.payload = "loading ...";
@@ -56,10 +52,10 @@ System.register(['@angular/core', 'angular2-jwt', '@angular/http', '@angular/rou
                 userComponent = __decorate([
                     core_1.Component({
                         selector: 'authorize',
-                        template: "<h1>You are logged in</h1> <h3>{{payload}}</h3><hr/>\n<button (click)='Logout()' class='btn btn-large'>Logout</button>\n",
+                        template: "<h1>You are logged in</h1> <h3>{{payload}}</h3><hr/>\n\n",
                         providers: []
                     }), 
-                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_1.Router, authoriza_service_1.authervice])
+                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, router_deprecated_1.Router, authoriza_service_1.authervice])
                 ], userComponent);
                 return userComponent;
             }());

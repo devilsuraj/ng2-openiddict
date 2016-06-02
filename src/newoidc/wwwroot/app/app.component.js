@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/router-deprecated', '@angular/http', 'angular2-jwt', './authorize/authorize-component', './User/user-component', './welcome-component', './authorize/externalauth'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/router-deprecated', '@angular/http', 'angular2-jwt', './authorize/authorize-component', './User/user-component', './welcome-component', './authorize/externalauth', './authorize/authoriza-service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, router_deprecated_1, http_1, angular2_jwt_1, authorize_component_1, user_component_1, welcome_component_1, externalauth_1, router_deprecated_2;
+    var core_1, router_deprecated_1, http_1, angular2_jwt_1, authorize_component_1, user_component_1, welcome_component_1, externalauth_1, router_deprecated_2, authoriza_service_1;
     var AppComponent;
     return {
         setters:[
@@ -38,17 +38,22 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
             },
             function (externalauth_1_1) {
                 externalauth_1 = externalauth_1_1;
+            },
+            function (authoriza_service_1_1) {
+                authoriza_service_1 = authoriza_service_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
-                function AppComponent(jwtHelper, _http, _parentRouter) {
+                function AppComponent(jwtHelper, _http, _parentRouter, Authentication) {
                     this.jwtHelper = jwtHelper;
                     this._http = _http;
                     this._parentRouter = _parentRouter;
+                    this.Authentication = Authentication;
                 }
                 AppComponent.prototype.authcheck = function () {
                     if (localStorage.getItem('auth_key') && !this.jwtHelper.isTokenExpired(localStorage.getItem('auth_key'))) {
                         this._parentRouter.navigate(['/Dashboard']);
+                        this.authorizeComponentRefer.logstatus();
                     }
                     else {
                         this.authorizeComponentRefer.mopen();
@@ -63,9 +68,7 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
                         selector: 'my-app',
                         templateUrl: 'app/app.component.html',
                         directives: [router_deprecated_1.ROUTER_DIRECTIVES, authorize_component_1.authorizeComponent],
-                        providers: [
-                            router_deprecated_1.ROUTER_PROVIDERS,
-                        ]
+                        providers: []
                     }),
                     router_deprecated_1.RouteConfig([
                         { path: '/', name: 'Default', component: welcome_component_1.welcome, useAsDefault: true },
@@ -73,7 +76,7 @@ System.register(['@angular/core', '@angular/router-deprecated', '@angular/http',
                         { path: '/dashboard', name: 'Dashboard', component: user_component_1.userComponent },
                         { path: '/signin-oidc', name: 'Extauth', component: externalauth_1.extauthorizeComponent }
                     ]), 
-                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_2.Router])
+                    __metadata('design:paramtypes', [angular2_jwt_1.JwtHelper, http_1.Http, router_deprecated_2.Router, authoriza_service_1.authervice])
                 ], AppComponent);
                 return AppComponent;
             }());
