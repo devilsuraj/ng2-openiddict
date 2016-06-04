@@ -29,7 +29,7 @@ export class authervice {
         if (localStorage.getItem("auth_key")) {
             this.authheaders = new Headers({ "Authorization": "Bearer " + localStorage.getItem("auth_key") });
               this.Authoptions = new RequestOptions({ headers: this.authheaders });
-            return this.http.get(this._authUrl + "/api/test", this.Authoptions)
+              return this.http.get(this._authUrl + "/api/Resource", this.Authoptions)
                 .map(res => res.json())
                 .catch(this.handleError);
         }

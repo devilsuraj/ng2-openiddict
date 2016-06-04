@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict;
-using OpenIddict.Models;
 using newoidc.Data;
 using newoidc.Models;
 using newoidc.Services;
@@ -25,7 +24,6 @@ namespace newoidc
 
             if (env.IsDevelopment())
             {
-                // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
                 builder.AddUserSecrets();
             }
 
@@ -38,34 +36,38 @@ namespace newoidc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-      /*
-            services.AddAuthentication(options => {
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            });*/
-            // Add framework services.
-            
+            services.AddMvc();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(o => {
+            services.AddIdentity<ApplicationUser, IdentityRole>(o =>
+            {
                 o.Password.RequireDigit = false;
                 o.Password.RequireLowercase = false;
                 o.Password.RequireUppercase = false;
                 o.Password.RequireNonAlphanumeric = false;
                 o.Password.RequiredLength = 6;
-            })
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders()
-                .AddOpenIddict();
+            }).AddEntityFrameworkStores<ApplicationDbContext>()
+              .AddDefaultTokenProviders();
 
-            services.AddMvc();
-
-          
-
-    
+            services.AddOpenIddict<ApplicationUser, ApplicationDbContext>()
+                .UseJsonWebTokens()
+                .AddNWebsec(options => options.DefaultSources(directive => 
+                directive.Self().CustomSources("*"))
+                .ImageSources(directive => directive.Self()
+                    .CustomSources("*", "data:"))
+                .ScriptSources(directive => directive.Self()
+                .UnsafeEval()
+                    .UnsafeInline()
+                    .CustomSources("*"))
+                .StyleSources(directive => directive.Self()
+                   .CustomSources("*").UnsafeInline()))
+            // During development, you can disable the HTTPS requirement.
+                .DisableHttpsRequirement(); 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,28 +75,7 @@ namespace newoidc
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-           // new TextWriterTraceListener(writer: Console.Out));
-            // app.UseDeveloperExceptionPage();
-            // app.UseDatabaseErrorPage();
-            // app.UseBrowserLink();
-
             app.UseStaticFiles();
-          // app.UseOAuthValidation();
-           //app.UseIdentity();
-           
-/*
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
-            {
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true,
-                RequireHttpsMetadata = false,
-                Audience = "http://localhost:58056/",
-                Authority = "http://localhost:58056/"
-            });*/
-            // This must be *after* "app.UseIdentity();" above
-          
-         
-           
             app.UseIdentity();
             app.UseGoogleAuthentication(new GoogleOptions
             {
@@ -116,27 +97,9 @@ namespace newoidc
                 Audience = "http://localhost:58056/",
                 Authority = "http://localhost:58056/"
             });
-            app.UseOpenIddict(options =>
-            {
-                 options.Options.UseJwtTokens();
-                options.Options.AllowInsecureHttp = true;
-                options.UseNWebsec(directives =>
-                {
-                    directives.DefaultSources(directive => directive.Self().CustomSources("*"))
-                        .ImageSources(directive => directive.Self().CustomSources("*", "data:"))
-                        .ScriptSources(directive => directive
-                            .Self()
-                            .UnsafeEval()
-                            .UnsafeInline()
-                            .CustomSources("*"))
-                        .StyleSources(directive => directive
-                        .Self()
-                         .CustomSources("*")
-                            .UnsafeInline());
-                });
-            });
+           app.UseOpenIddict();
 
-            app.UseMvc(routes =>
+           app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
